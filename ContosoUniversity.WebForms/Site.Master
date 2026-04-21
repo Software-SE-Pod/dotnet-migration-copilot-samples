@@ -1,0 +1,47 @@
+<%@ Master Language="C#" AutoEventWireup="true" %>
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title>Contoso University</title>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <form id="mainForm" runat="server">
+        <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePartialRendering="true" />
+        <div class="page">
+            <div class="header">
+                <div class="title"><h1>Contoso University</h1></div>
+                <div class="nav">
+                    <ul>
+                        <li><a href="/Pages/Default.aspx">Home</a></li>
+                        <li><a href="/Pages/Students/StudentList.aspx">Students</a></li>
+                        <li><a href="/Pages/Courses/CourseList.aspx">Courses</a></li>
+                        <li><a href="/Pages/Departments/DepartmentList.aspx">Departments</a></li>
+                        <li><a href="/Pages/Instructors/InstructorList.aspx">Instructors</a></li>
+                        <li><a href="/Pages/Reports/EnrollmentStats.aspx">Reports</a></li>
+                        <li><a href="/Pages/Admin/Dashboard.aspx">Admin</a></li>
+                    </ul>
+                </div>
+                <div class="user-info">
+                    <asp:LoginView ID="LoginView1" runat="server">
+                        <LoggedInTemplate>
+                            Welcome, <asp:LoginName ID="LoginName1" runat="server" />
+                            | <asp:LoginStatus ID="LoginStatus1" runat="server" LogoutAction="Redirect" LogoutPageUrl="~/Pages/Default.aspx" />
+                        </LoggedInTemplate>
+                        <AnonymousTemplate>
+                            <a href="/Pages/Admin/Login.aspx">Sign In</a>
+                        </AnonymousTemplate>
+                    </asp:LoginView>
+                </div>
+            </div>
+            <div class="main">
+                <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+            </div>
+            <div class="footer">
+                &copy; <%= DateTime.Now.Year %> Contoso University
+            </div>
+        </div>
+    </form>
+</body>
+</html>

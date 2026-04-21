@@ -1,0 +1,27 @@
+{
+  "name": "webforms-migration-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autonomous WebForms -> React + .NET migration orchestrator built on the GitHub Copilot SDK.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/orchestrator.ts",
+    "dry": "cross-env MIGRATION_DRY_RUN=1 tsx src/orchestrator.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "^0.2.2",
+    "@octokit/rest": "^21.0.2",
+    "ajv": "^8.17.1",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.14.0",
+    "cross-env": "^7.0.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

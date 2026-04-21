@@ -1,0 +1,37 @@
+name: Build & Typecheck Orchestrator
+
+on:
+  push:
+    paths:
+      - "webforms-migration-agent/**"
+  pull_request:
+    paths:
+      - "webforms-migration-agent/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webforms-migration-agent
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Dry run (smoke test)
+        env:
+          MIGRATION_DRY_RUN: "1"
+          GITHUB_REPOSITORY: "test/test-repo"
+        run: npx tsx src/orchestrator.ts

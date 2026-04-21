@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MigrationManifest",
+  "type": "object",
+  "required": ["version", "bootstrap", "pages"],
+  "properties": {
+    "version": { "const": 1 },
+    "bootstrap": {
+      "type": "object",
+      "description": "One-time platform phases. Must all be 'done' before page phase begins.",
+      "properties": {
+        "solution":  { "$ref": "#/definitions/phaseState" },
+        "identity":  { "$ref": "#/definitions/phaseState" },
+        "data":      { "$ref": "#/definitions/phaseState" },
+        "secrets":   { "$ref": "#/definitions/phaseState" },
+        "storage":   { "$ref": "#/definitions/phaseState" },
+        "adapters":  { "$ref": "#/definitions/phaseState" }
+      },
+      "additionalProperties": false
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "aspxPath", "scenario", "status"],
+        "properties": {
+          "id":        { "type": "string" },
+          "aspxPath":  { "type": "string" },
+          "scenario":  { "enum": ["form", "grid", "report", "wizard", "dashboard", "auth", "unknown"] },
+          "risk":      { "enum": ["low", "medium", "high"] },
+          "status":    { "enum": ["pending", "contract-open", "impl-open", "review-open", "done", "failed", "blocked", "needs-human"] },
+          "contractPr":{ "type": "integer" },
+          "implPr":    { "type": "integer" },
+          "attempts":  { "type": "integer", "default": 0 },
+          "notes":     { "type": "string" },
+          "blockedReason": { "type": "string" },
+          "lastUpdated": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "premiumRequestsUsed": { "type": "integer" },
+        "premiumRequestsCap":  { "type": "integer" }
+      }
+    },
+    "defaultBranch": { "type": "string" }
+  },
+  "definitions": {
+    "phaseState": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status":     { "enum": ["pending", "in-progress", "done", "failed"] },
+        "pr":         { "type": "integer" },
+        "attempts":   { "type": "integer", "default": 0 },
+        "lastUpdated":{ "type": "string", "format": "date-time" },
+        "notes":      { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

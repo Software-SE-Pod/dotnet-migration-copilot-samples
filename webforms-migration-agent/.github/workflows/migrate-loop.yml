@@ -1,0 +1,82 @@
+name: Autonomous Migration Loop
+
+on:
+  schedule:
+    # Every 4 hours — 6 times a day. The job budget is 4.5h, leaving slack.
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan only, do not open PRs or commit"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+
+concurrency:
+  group: migration-loop
+  cancel-in-progress: false
+
+jobs:
+  orchestrate:
+    runs-on: windows-latest
+    timeout-minutes: 300    # hard ceiling; orchestrator yields at 270
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      # Orchestrator requires a PAT with repo + workflow scopes for PR creation
+      # and @copilot assignment. GITHUB_TOKEN cannot trigger downstream workflows.
+      MIGRATION_PAT: ${{ secrets.MIGRATION_PAT }}
+    steps:
+      - name: Validate PAT exists
+        run: |
+          if (-not $env:MIGRATION_PAT) {
+            Write-Error "MIGRATION_PAT secret is required. Set a PAT with repo + workflow scopes."
+            exit 1
+          }
+
+      - name: Check out the target repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.MIGRATION_PAT }}
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up .NET (framework + core)
+        uses: dotnet/modernize-dotnet-actions@main
+        with:
+          dotnet-version: "8.0.x"
+          install-framework-targeting-packs: "true"
+
+      - name: Install NSwag console
+        run: dotnet tool install --global NSwag.ConsoleCore
+
+      - name: Install orchestrator deps
+        working-directory: webforms-migration-agent
+        run: npm ci
+
+      - name: Configure git
+        run: |
+          git config user.name  "webforms-migration-bot"
+          git config user.email "bot@users.noreply.github.com"
+
+      - name: Run orchestrator
+        working-directory: webforms-migration-agent
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+          GH_TOKEN:             ${{ secrets.MIGRATION_PAT }}
+          GITHUB_REPOSITORY:    ${{ github.repository }}
+          MIGRATION_BUDGET_MINUTES: "270"
+          MIGRATION_MAX_OPEN_PRS:   "3"
+          MIGRATION_DRY_RUN:        ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+          MIGRATION_TARGET_REPO:    ${{ github.workspace }}
+        run: npx tsx src/orchestrator.ts
