@@ -6,6 +6,31 @@ servers:
   - url: http://localhost:5000
   - url: http://localhost:5173
 paths:
+  /api/contosouniversity-webforms-pages-default:
+    get:
+      operationId: getContosouniversityWebformsPagesDefault
+      summary: Get Default page dashboard stats
+      tags: [contosouniversity-webforms-pages-default]
+      x-page-id: contosouniversity-webforms-pages-default
+      responses:
+        "200":
+          description: Default dashboard stats view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesDefaultViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/contosouniversity-webforms-pages-admin-dashboard:
     get:
       operationId: getContosouniversityWebformsPagesAdminDashboard
@@ -434,6 +459,19 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    ContosouniversityWebformsPagesDefaultViewModel:
+      description: View model for the Default dashboard page.
+      type: object
+      properties:
+        studentCount:
+          type: integer
+          description: Total number of students
+        courseCount:
+          type: integer
+          description: Total number of courses
+        departmentCount:
+          type: integer
+          description: Total number of departments
     ContosouniversityWebformsPagesAdminDashboardViewModel:
       description: View model for the Admin Dashboard page.
       type: object
