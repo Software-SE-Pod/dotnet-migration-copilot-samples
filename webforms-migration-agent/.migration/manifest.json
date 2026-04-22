@@ -30,8 +30,10 @@
       "notes": "PR #14 merged"
     },
     "storage": {
-      "status": "pending",
-      "attempts": 0
+      "status": "in-progress",
+      "attempts": 1,
+      "lastUpdated": "2026-04-22T10:10:03.885Z",
+      "pr": 15
     },
     "adapters": {
       "status": "pending",
@@ -151,7 +153,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 7,
+    "premiumRequestsUsed": 8,
     "premiumRequestsCap": 2000
   }
 }
