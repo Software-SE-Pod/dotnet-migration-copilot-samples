@@ -191,8 +191,116 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/contosouniversity-webforms-pages-instructors-instructorlist:
+    get:
+      operationId: getContosouniversityWebformsPagesInstructorsInstructorlist
+      summary: Get Instructor List page view model
+      tags: [contosouniversity-webforms-pages-instructors-instructorlist]
+      x-page-id: contosouniversity-webforms-pages-instructors-instructorlist
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page index (zero-based)
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: Page size
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Sort expression (e.g. "LastName:asc")
+      responses:
+        "200":
+          description: Instructor List page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructorlistViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    ContosouniversityWebformsPagesInstructorsInstructorlistViewModel:
+      description: View model for the Instructor List page.
+      type: object
+      properties:
+        instructors:
+          type: array
+          description: List of instructors for the grid
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem'
+        page:
+          type: integer
+          description: Current page index (zero-based)
+        pageSize:
+          type: integer
+          description: Page size
+        totalCount:
+          type: integer
+          description: Total number of instructors
+    ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem:
+      description: Instructor item for the grid
+      type: object
+      properties:
+        instructorId:
+          type: integer
+          description: Instructor ID
+        lastName:
+          type: string
+          description: Instructor last name
+        firstName:
+          type: string
+          description: Instructor first name
+        hireDate:
+          type: string
+          format: date-time
+          description: Instructor hire date
+        officeLocation:
+          type: string
+          description: Office location
+        courses:
+          type: array
+          description: List of courses taught by the instructor
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem'
+    ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem:
+      description: Course item for instructor
+      type: object
+      properties:
+        courseId:
+          type: integer
+          description: Course ID
+        title:
+          type: string
+          description: Course title
+    ContosouniversityWebformsPagesInstructorsInstructorlistStudentItem:
+      description: Student item for selected instructor
+      type: object
+      properties:
+        studentId:
+          type: integer
+          description: Student ID
+        fullName:
+          type: string
+          description: Student full name
+        grade:
+          type: string
+          description: Student grade
+
     HealthViewModel:
       type: object
       properties:
