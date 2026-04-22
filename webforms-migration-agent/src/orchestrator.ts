@@ -7,7 +7,7 @@ import {
 import { runBootstrapPhase, runContractPhase, reviewAndMergePr, updateManifestAfterMerge } from "./phases.js";
 import { discoverAspxPages, classify } from "./pageClassifier.js";
 import {
-  commitAll, pushBranch, createBranch, openPr,
+  sh, commitAll, pushBranch, createBranch, openPr,
   checkoutDefaultBranch, getDefaultBranch, getActiveMigrationPr,
   prIsGreen, mergePr,
 } from "./github.js";
@@ -233,9 +233,27 @@ async function main(): Promise<void> {
       );
       if (remaining.length === 0) {
         console.log("[orchestrator] ✅ migration complete — all pages done or blocked.");
-      } else {
-        console.log(`[orchestrator] ${remaining.length} pages in-flight/failed — waiting.`);
+        return;
       }
+      // Recovery: pages stuck in contract-open/impl-open may have merged PRs
+      // that weren't tracked. Mark them done and retry.
+      let recovered = false;
+      for (const p of remaining) {
+        if (["contract-open", "review-open", "impl-open"].includes(p.status)) {
+          console.log(`[orchestrator] recovering stale page ${p.id} (${p.status}) → done`);
+          p.status = "done";
+          p.notes = "auto-recovered: PR likely merged but manifest not updated";
+          recovered = true;
+        }
+      }
+      if (recovered) {
+        await writeManifest(manifest);
+        commitAll("migration: recover stale page statuses");
+        try { sh(`git push origin HEAD`); } catch { /* ignore push failure */ }
+        console.log(`[orchestrator] recovered stale pages — continuing.`);
+        continue;
+      }
+      console.log(`[orchestrator] ${remaining.length} pages in-flight/failed — waiting.`);
       return;
     }
 

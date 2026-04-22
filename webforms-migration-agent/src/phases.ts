@@ -257,24 +257,36 @@ export async function updateManifestAfterMerge(prNumber: number, headBranch: str
     // Check bootstrap phases
     let changed = false;
     for (const [key, state] of Object.entries(manifest.bootstrap)) {
-      if (state.pr === prNumber && state.status === "in-progress") {
+      // Match by PR number or by branch name pattern (migration/bootstrap/<phase>)
+      const branchMatch = headBranch === `migration/bootstrap/${key}`;
+      if ((state.pr === prNumber || branchMatch) && ["in-progress", "pending"].includes(state.status)) {
         state.status = "done";
+        state.pr = prNumber;
         state.notes = `PR #${prNumber} merged`;
         stamp(state);
         changed = true;
       }
     }
 
-    // Check pages
+    // Check pages — match by contractPr, implPr, or by branch name
     for (const page of manifest.pages) {
-      if (page.contractPr === prNumber && ["contract-open", "review-open"].includes(page.status)) {
+      // Extract page ID from branch: migration/page/<pageId>/contract or .../impl
+      const branchPageMatch = headBranch.startsWith(`migration/page/${page.id}/`);
+      const isContract = headBranch.endsWith("/contract");
+      const isImpl = headBranch.endsWith("/impl");
+
+      if ((page.contractPr === prNumber || (branchPageMatch && isContract))
+          && ["contract-open", "review-open"].includes(page.status)) {
         page.status = "done";
+        page.contractPr = prNumber;
         page.notes = `PR #${prNumber} merged`;
         stamp(page);
         changed = true;
       }
-      if (page.implPr === prNumber && page.status === "impl-open") {
+      if ((page.implPr === prNumber || (branchPageMatch && isImpl))
+          && page.status === "impl-open") {
         page.status = "done";
+        page.implPr = prNumber;
         page.notes = `PR #${prNumber} merged`;
         stamp(page);
         changed = true;
@@ -289,6 +301,8 @@ export async function updateManifestAfterMerge(prNumber: number, headBranch: str
         sh(`git push origin HEAD`);
         console.log(`[review] manifest updated on main — PR #${prNumber} marked done.`);
       }
+    } else {
+      console.log(`[review] no manifest match for PR #${prNumber} (branch: ${headBranch}) — skipping.`);
     }
   } catch (err) {
     console.warn(`[review] failed to update manifest after merge: ${err}`);
