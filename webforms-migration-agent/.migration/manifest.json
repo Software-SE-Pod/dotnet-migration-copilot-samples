@@ -171,9 +171,10 @@
       "scenario": "grid",
       "risk": "medium",
       "attempts": 1,
-      "notes": "",
-      "status": "contract-open",
-      "lastUpdated": "2026-04-22T16:13:54.434Z"
+      "notes": "PR #44 merged",
+      "status": "done",
+      "lastUpdated": "2026-04-22T16:17:51.545Z",
+      "contractPr": 44
     }
   ],
   "budget": {
