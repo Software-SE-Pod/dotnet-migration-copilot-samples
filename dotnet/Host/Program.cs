@@ -40,6 +40,11 @@ var app = builder.Build();
 // Use SystemWebAdapters
 app.UseSystemWebAdapters();
 
+// Use YARP reverse proxy
+app.MapReverseProxy();
+
+app.UseSystemWebAdapters();
+
 // Use YARP proxy
 app.MapReverseProxy();
 
