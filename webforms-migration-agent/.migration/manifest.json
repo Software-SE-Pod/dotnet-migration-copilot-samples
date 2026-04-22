@@ -142,9 +142,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Reports/EnrollmentStats.aspx",
       "scenario": "grid",
       "risk": "low",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T15:42:30.960Z"
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentedit",

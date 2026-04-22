@@ -6,6 +6,74 @@ servers:
   - url: http://localhost:5000
   - url: http://localhost:5173
 paths:
+  /api/contosouniversity-webforms-pages-reports-enrollmentstats:
+    get:
+      operationId: getContosouniversityWebformsPagesReportsEnrollmentstats
+      summary: Get Enrollment Stats page view model
+      tags: [contosouniversity-webforms-pages-reports-enrollmentstats]
+      x-page-id: contosouniversity-webforms-pages-reports-enrollmentstats
+      parameters:
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+          description: Filter by department ID
+      responses:
+        "200":
+          description: Enrollment Stats page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /api/contosouniversity-webforms-pages-reports-enrollmentstats/export:
+    post:
+      operationId: exportContosouniversityWebformsPagesReportsEnrollmentstats
+      summary: Export Enrollment Stats report as CSV
+      tags: [contosouniversity-webforms-pages-reports-enrollmentstats]
+      x-page-id: contosouniversity-webforms-pages-reports-enrollmentstats
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                departmentId:
+                  type: integer
+                  description: Filter by department ID
+      responses:
+        "200":
+          description: CSV export result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
   /health:
     get:
       operationId: getHealth
@@ -234,6 +302,77 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel:
+      description: View model for the Enrollment Stats page.
+      type: object
+      properties:
+        departmentOptions:
+          type: array
+          description: List of available departments
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption'
+        selectedDepartmentId:
+          type: integer
+          description: Selected department ID for filtering
+        enrollments:
+          type: array
+          description: List of enrollment statistics by course
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem'
+        yearlyStats:
+          type: array
+          description: List of yearly enrollment counts
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat'
+
+    ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption:
+      description: Department option for dropdown
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Department ID
+        name:
+          type: string
+          description: Department name
+
+    ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem:
+      description: Enrollment statistics for a course
+      type: object
+      properties:
+        courseTitle:
+          type: string
+          description: Course title
+        departmentName:
+          type: string
+          description: Department name
+        enrollmentCount:
+          type: integer
+          description: Number of students enrolled
+        averageGrade:
+          type: number
+          format: float
+          description: Average grade (0.0-4.0)
+
+    ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat:
+      description: Yearly enrollment count
+      type: object
+      properties:
+        year:
+          type: integer
+          description: Enrollment year
+        count:
+          type: integer
+          description: Number of students enrolled in the year
+
+    ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult:
+      description: Result of exporting the Enrollment Stats report as CSV.
+      type: object
+      properties:
+        url:
+          type: string
+          description: Download URL for the CSV file
+
     ContosouniversityWebformsPagesInstructorsInstructorlistViewModel:
       description: View model for the Instructor List page.
       type: object
