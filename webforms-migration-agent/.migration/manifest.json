@@ -80,9 +80,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Courses/CourseList.aspx",
       "scenario": "grid",
       "risk": "low",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T15:22:42.112Z"
     },
     {
       "id": "contosouniversity-webforms-pages-default",
