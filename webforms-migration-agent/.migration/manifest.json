@@ -154,9 +154,10 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "",
-      "status": "contract-open",
-      "lastUpdated": "2026-04-22T15:47:04.595Z"
+      "notes": "PR #40 merged",
+      "status": "done",
+      "lastUpdated": "2026-04-22T15:56:15.817Z",
+      "contractPr": 40
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentlist",
