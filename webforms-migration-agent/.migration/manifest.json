@@ -18,7 +18,8 @@
     "data": {
       "status": "in-progress",
       "attempts": 1,
-      "lastUpdated": "2026-04-22T14:34:43.057Z"
+      "lastUpdated": "2026-04-22T14:35:34.694Z",
+      "pr": 30
     },
     "secrets": {
       "status": "pending",
@@ -145,7 +146,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 2,
+    "premiumRequestsUsed": 3,
     "premiumRequestsCap": 2000
   }
 }
