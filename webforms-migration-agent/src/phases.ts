@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { runSession } from "./copilot.js";
 import {
-  sh, commitAll, createBranch, openPr, pushBranch,
+  sh, commitAll, hasCodeChanges, createBranch, openPr, pushBranch,
   prIsGreen, mergePr, closePr, getPrState, getPrDiff, getPrFiles,
   postPrComment, postPrReview,
   checkoutDefaultBranch, getDefaultBranch, rebasePrBranch, prHasConflicts,
@@ -326,10 +326,11 @@ export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
   const branch = `migration/bootstrap/${phase}`;
   await createBranch(branch);
 
+  // Track attempts in memory but DON'T write manifest to the branch yet —
+  // we only want PRs with real code changes, not manifest-only PRs.
   state.status = "in-progress";
   state.attempts = (state.attempts ?? 0) + 1;
   stamp(state);
-  await writeManifest(manifest);
 
   const prompt = await loadPrompt(BOOTSTRAP_PROMPT_FILES[phase]);
   const skills = await loadSkills();
@@ -355,6 +356,19 @@ export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
     return;
   }
 
+  // Check if the SDK produced any real code changes (not just manifest/audit)
+  if (!hasCodeChanges()) {
+    console.log(`[phases] bootstrap(${phase}): SDK session produced no code changes — marking failed for retry`);
+    state.status = "failed";
+    state.notes = "session completed but produced no code changes";
+    stamp(state);
+    await writeManifest(manifest);
+    await checkoutDefaultBranch();
+    return;
+  }
+
+  // Now write manifest + commit everything together
+  await writeManifest(manifest);
   const committed = commitAll(`migration(${phase}): bootstrap scaffold`);
   if (!committed) {
     state.status = "done";
@@ -416,10 +430,10 @@ export async function runContractPhase(page: PageEntry): Promise<void> {
   const branch = `migration/page/${page.id}/contract`;
   await createBranch(branch);
 
+  // Track in memory but don't write manifest to branch yet
   p.status = "contract-open";
   p.attempts = (p.attempts ?? 0) + 1;
   stamp(p);
-  await writeManifest(manifest);
 
   const prompt = (await loadPrompt("10-page-contract.md"))
     .replaceAll("{{PAGE_ID}}", page.id)
@@ -463,6 +477,19 @@ export async function runContractPhase(page: PageEntry): Promise<void> {
     return;
   }
 
+  // Check for real code changes before creating a PR
+  if (!hasCodeChanges()) {
+    console.log(`[phases] contract(${page.id}): no code changes — marking failed for retry`);
+    p.status = "failed";
+    p.notes = "contract session + NSwag produced no diff — YAML likely unchanged";
+    stamp(p);
+    await writeManifest(manifest);
+    await checkoutDefaultBranch();
+    return;
+  }
+
+  // Write manifest + commit together
+  await writeManifest(manifest);
   const committed = commitAll(
     `migration(page ${page.id}): contract (openapi + nswag scaffolding)`
   );

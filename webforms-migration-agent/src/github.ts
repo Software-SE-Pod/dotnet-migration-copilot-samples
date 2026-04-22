@@ -91,6 +91,23 @@ export function commitAll(message: string): boolean {
   return true;
 }
 
+/** Check if there are meaningful code changes beyond manifest/audit files. */
+export function hasCodeChanges(): boolean {
+  if (dry()) return true;
+  sh(`git add -A`);
+  const status = sh(`git status --porcelain`);
+  if (!status) return false;
+  const lines = status.split("\n").filter(l => l.trim());
+  const meaningful = lines.filter(l => {
+    const file = l.slice(3).trim();
+    return !file.includes(".migration/manifest.json")
+        && !file.includes(".migration/audit.log");
+  });
+  // Reset staging — commitAll will re-add
+  try { sh(`git reset HEAD`); } catch { /* ignore */ }
+  return meaningful.length > 0;
+}
+
 export function pushBranch(name: string): void {
   if (dry()) { console.log(`[dry-run] git push -u origin ${name}`); return; }
   // Strip .github/workflows from the branch — pushing workflow changes requires
