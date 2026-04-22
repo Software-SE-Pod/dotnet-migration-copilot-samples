@@ -37,10 +37,11 @@
       "notes": "PR #32 merged"
     },
     "adapters": {
-      "status": "in-progress",
+      "status": "done",
       "attempts": 1,
-      "lastUpdated": "2026-04-22T15:13:34.689Z",
-      "pr": 33
+      "lastUpdated": "2026-04-22T15:17:53.761Z",
+      "pr": 33,
+      "notes": "PR #33 merged"
     }
   },
   "pages": [
