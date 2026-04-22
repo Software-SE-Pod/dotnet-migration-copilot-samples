@@ -5,9 +5,8 @@ import path from "node:path";
  * Thin wrapper over @github/copilot-sdk. Isolated so the orchestrator stays
  * readable and so the SDK surface can be swapped (e.g. BYOK) without ripple.
  *
- * NOTE: The Copilot SDK is in public preview; the exact client shape evolves.
- * We import it dynamically and adapt, so a minor-version bump doesn't break
- * the orchestrator at parse time.
+ * Uses CopilotClient → start() → createSession() → sendAndWait() pattern
+ * per the official SDK API (public preview, April 2026).
  */
 
 export interface SessionInput {
@@ -52,54 +51,52 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
     );
   }
 
-  // The public SDK exposes a `Copilot` client + a `session` factory. We probe
-  // both common shapes so this keeps working across preview versions.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const SdkAny = sdk as any;
+  const { CopilotClient, approveAll } = sdk as any;
+  if (!CopilotClient) throw new Error("@github/copilot-sdk missing CopilotClient export — update SDK.");
+
   const token = process.env.COPILOT_GITHUB_TOKEN ?? process.env.GH_TOKEN;
   if (!token) throw new Error("COPILOT_GITHUB_TOKEN or GH_TOKEN required for Copilot SDK.");
-
-  const client =
-    SdkAny.Copilot ? new SdkAny.Copilot({ token, cwd: input.cwd }) :
-    SdkAny.createClient ? SdkAny.createClient({ token, cwd: input.cwd }) :
-    SdkAny.default ? new SdkAny.default({ token, cwd: input.cwd }) :
-    null;
-
-  if (!client) throw new Error("Unrecognized @github/copilot-sdk shape — update copilot.ts.");
 
   const fullPrompt = [input.prompt, ...(input.skills ?? [])].join("\n\n---\n\n");
   const started = Date.now();
   const timeoutMs = (input.timeoutMinutes ?? 60) * 60_000;
 
+  const client = new CopilotClient({ githubToken: token });
+
   try {
-    // Preferred path: a top-level `run` that creates a session, streams events,
-    // and auto-commits on the current branch. Falls back to `session().ask(...)`.
-    const runner = client.run ?? client.session ?? client.createSession;
-    if (!runner) throw new Error("SDK client has no run/session method.");
+    await client.start();
 
-    const promise: Promise<unknown> = client.run
-      ? client.run({ prompt: fullPrompt, cwd: input.cwd, allowAll: true })
-      : client.session({ cwd: input.cwd, allowAll: true }).ask(fullPrompt);
+    const session = await client.createSession({
+      model: "gpt-4.1",
+      onPermissionRequest: approveAll,
+    });
 
-    const timed = Promise.race([
-      promise,
+    // sendAndWait sends the prompt and blocks until the session goes idle.
+    const result = await Promise.race([
+      session.sendAndWait({ prompt: fullPrompt }, timeoutMs),
       new Promise<never>((_, rej) =>
         setTimeout(() => rej(new Error(`session ${input.id} exceeded ${input.timeoutMinutes}m`)), timeoutMs)
       ),
     ]);
 
-    const result = await timed;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anyRes = result as any;
     const summary = typeof anyRes === "string" ? anyRes :
-                    anyRes?.summary ?? anyRes?.text ?? `(session ${input.id} completed)`;
+                    anyRes?.data?.content ?? anyRes?.summary ?? anyRes?.text ??
+                    `(session ${input.id} completed)`;
     const premiumRequests = typeof anyRes?.premiumRequests === "number"
       ? anyRes.premiumRequests : 1;
+
+    await session.disconnect();
+    await client.stop();
 
     await appendAuditLog(input.id, started, true, summary);
     return { ok: true, summary, premiumRequests };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    // Best-effort cleanup
+    try { await client.stop(); } catch { /* ignore */ }
     await appendAuditLog(input.id, started, false, msg);
     return { ok: false, summary: "session failed", error: msg };
   }
