@@ -2,8 +2,9 @@
   "version": 1,
   "bootstrap": {
     "solution": {
-      "status": "pending",
-      "attempts": 0
+      "status": "in-progress",
+      "attempts": 1,
+      "lastUpdated": "2026-04-22T04:26:34.042Z"
     },
     "identity": {
       "status": "pending",
