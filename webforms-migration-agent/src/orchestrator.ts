@@ -214,8 +214,14 @@ async function main(): Promise<void> {
         return;
       }
       console.log(`[orchestrator] bootstrap phase: ${phase}`);
-      await runBootstrapPhase(phase);
-      console.log(`[orchestrator] bootstrap PR created — looping to review it.`);
+      try {
+        await runBootstrapPhase(phase);
+        console.log(`[orchestrator] bootstrap PR created — looping to review it.`);
+      } catch (err) {
+        console.error(`[orchestrator] bootstrap phase failed: ${err}`);
+        console.log(`[orchestrator] will retry next iteration.`);
+        await checkoutDefaultBranch();
+      }
       continue;
     }
 
@@ -233,8 +239,14 @@ async function main(): Promise<void> {
     }
 
     console.log(`[orchestrator] contract phase: ${page.id} (${page.scenario}/${page.risk})`);
-    await runContractPhase(page);
-    console.log(`[orchestrator] contract PR created — looping to review it.`);
+    try {
+      await runContractPhase(page);
+      console.log(`[orchestrator] contract PR created — looping to review it.`);
+    } catch (err) {
+      console.error(`[orchestrator] contract phase failed: ${err}`);
+      console.log(`[orchestrator] will retry next iteration.`);
+      await checkoutDefaultBranch();
+    }
     continue;
   }
 

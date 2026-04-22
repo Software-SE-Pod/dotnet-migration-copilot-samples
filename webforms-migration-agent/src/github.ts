@@ -85,6 +85,18 @@ export function commitAll(message: string): boolean {
 
 export function pushBranch(name: string): void {
   if (dry()) { console.log(`[dry-run] git push -u origin ${name}`); return; }
+  // Strip .github/workflows from the branch — pushing workflow changes requires
+  // the 'workflows' token scope which the PAT typically lacks.
+  // Check ALL commits on branch vs base, not just the last one.
+  try {
+    const base = sh(`git merge-base origin/main HEAD`);
+    const wfFiles = sh(`git diff --name-only ${base} HEAD -- .github/workflows`);
+    if (wfFiles.trim()) {
+      console.log(`[github] stripping workflow files from branch: ${wfFiles.trim().replace(/\n/g, ", ")}`);
+      try { sh(`git rm -rf .github/workflows`); } catch { /* already gone */ }
+      sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" commit -m "chore: remove workflow files (requires workflows scope)" --allow-empty`);
+    }
+  } catch { /* no workflow changes or git error — proceed normally */ }
   sh(`git push -u origin ${name} --force-with-lease`);
 }
 
