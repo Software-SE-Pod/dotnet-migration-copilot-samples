@@ -241,6 +241,119 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult>(null as any);
     }
+
+    /**
+     * Get Instructor Edit page view model
+     * @param id (optional) Instructor ID (for edit)
+     * @return Instructor Edit page view model
+     */
+    getContosouniversityWebformsPagesInstructorsInstructoredit(id: number | undefined): Promise<ContosouniversityWebformsPagesInstructorsInstructoreditViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-instructors-instructoredit?";
+        if (id === null)
+            throw new globalThis.Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesInstructorsInstructoredit(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesInstructorsInstructoredit(response: Response): Promise<ContosouniversityWebformsPagesInstructorsInstructoreditViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesInstructorsInstructoreditViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructoreditViewModel>(null as any);
+    }
+
+    /**
+     * Submit Instructor Edit form
+     * @return Result of submitting the Instructor Edit form
+     */
+    submitContosouniversityWebformsPagesInstructorsInstructoredit(body: ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest): Promise<ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-instructors-instructoredit";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSubmitContosouniversityWebformsPagesInstructorsInstructoredit(_response);
+        });
+    }
+
+    protected processSubmitContosouniversityWebformsPagesInstructorsInstructoredit(response: Response): Promise<ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult>(null as any);
+    }
 }
 
 export class HealthViewModel implements IHealthViewModel {
@@ -287,6 +400,316 @@ export class HealthViewModel implements IHealthViewModel {
 
 export interface IHealthViewModel {
     status?: string;
+
+    [key: string]: any;
+}
+
+/** View model for the Instructor Edit page. */
+export class ContosouniversityWebformsPagesInstructorsInstructoreditViewModel implements IContosouniversityWebformsPagesInstructorsInstructoreditViewModel {
+    /** Instructor ID (null for new) */
+    instructorId?: number;
+    /** Instructor last name */
+    lastName?: string;
+    /** Instructor first name */
+    firstName?: string;
+    /** Instructor hire date */
+    hireDate?: Date;
+    /** Office location */
+    officeLocation?: string;
+    /** List of available courses */
+    courseOptions?: ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption[];
+    /** List of assigned course IDs */
+    assignedCourseIds?: number[];
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructoreditViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.instructorId = _data["instructorId"];
+            this.lastName = _data["lastName"];
+            this.firstName = _data["firstName"];
+            this.hireDate = _data["hireDate"] ? new Date(_data["hireDate"].toString()) : undefined as any;
+            this.officeLocation = _data["officeLocation"];
+            if (Array.isArray(_data["courseOptions"])) {
+                this.courseOptions = [] as any;
+                for (let item of _data["courseOptions"])
+                    this.courseOptions!.push(ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption.fromJS(item));
+            }
+            if (Array.isArray(_data["assignedCourseIds"])) {
+                this.assignedCourseIds = [] as any;
+                for (let item of _data["assignedCourseIds"])
+                    this.assignedCourseIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructoreditViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructoreditViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["instructorId"] = this.instructorId;
+        data["lastName"] = this.lastName;
+        data["firstName"] = this.firstName;
+        data["hireDate"] = this.hireDate ? this.hireDate.toISOString() : undefined as any;
+        data["officeLocation"] = this.officeLocation;
+        if (Array.isArray(this.courseOptions)) {
+            data["courseOptions"] = [];
+            for (let item of this.courseOptions)
+                data["courseOptions"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.assignedCourseIds)) {
+            data["assignedCourseIds"] = [];
+            for (let item of this.assignedCourseIds)
+                data["assignedCourseIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** View model for the Instructor Edit page. */
+export interface IContosouniversityWebformsPagesInstructorsInstructoreditViewModel {
+    /** Instructor ID (null for new) */
+    instructorId?: number;
+    /** Instructor last name */
+    lastName?: string;
+    /** Instructor first name */
+    firstName?: string;
+    /** Instructor hire date */
+    hireDate?: Date;
+    /** Office location */
+    officeLocation?: string;
+    /** List of available courses */
+    courseOptions?: ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption[];
+    /** List of assigned course IDs */
+    assignedCourseIds?: number[];
+
+    [key: string]: any;
+}
+
+/** Course option for checkbox list */
+export class ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption implements IContosouniversityWebformsPagesInstructorsInstructoreditCourseOption {
+    /** Course ID */
+    id?: number;
+    /** Course title */
+    title?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructoreditCourseOption) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+/** Course option for checkbox list */
+export interface IContosouniversityWebformsPagesInstructorsInstructoreditCourseOption {
+    /** Course ID */
+    id?: number;
+    /** Course title */
+    title?: string;
+
+    [key: string]: any;
+}
+
+/** Request to submit the Instructor Edit form. */
+export class ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest implements IContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest {
+    /** Instructor ID (null for new) */
+    instructorId?: number;
+    /** Instructor last name */
+    lastName?: string;
+    /** Instructor first name */
+    firstName?: string;
+    /** Instructor hire date */
+    hireDate?: Date;
+    /** Office location */
+    officeLocation?: string;
+    /** List of assigned course IDs */
+    assignedCourseIds?: number[];
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.instructorId = _data["instructorId"];
+            this.lastName = _data["lastName"];
+            this.firstName = _data["firstName"];
+            this.hireDate = _data["hireDate"] ? new Date(_data["hireDate"].toString()) : undefined as any;
+            this.officeLocation = _data["officeLocation"];
+            if (Array.isArray(_data["assignedCourseIds"])) {
+                this.assignedCourseIds = [] as any;
+                for (let item of _data["assignedCourseIds"])
+                    this.assignedCourseIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["instructorId"] = this.instructorId;
+        data["lastName"] = this.lastName;
+        data["firstName"] = this.firstName;
+        data["hireDate"] = this.hireDate ? this.hireDate.toISOString() : undefined as any;
+        data["officeLocation"] = this.officeLocation;
+        if (Array.isArray(this.assignedCourseIds)) {
+            data["assignedCourseIds"] = [];
+            for (let item of this.assignedCourseIds)
+                data["assignedCourseIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request to submit the Instructor Edit form. */
+export interface IContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest {
+    /** Instructor ID (null for new) */
+    instructorId?: number;
+    /** Instructor last name */
+    lastName?: string;
+    /** Instructor first name */
+    firstName?: string;
+    /** Instructor hire date */
+    hireDate?: Date;
+    /** Office location */
+    officeLocation?: string;
+    /** List of assigned course IDs */
+    assignedCourseIds?: number[];
+
+    [key: string]: any;
+}
+
+/** Result of submitting the Instructor Edit form. */
+export class ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult implements IContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** URL to redirect to after save */
+    redirectUrl?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.redirectUrl = _data["redirectUrl"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["redirectUrl"] = this.redirectUrl;
+        return data;
+    }
+}
+
+/** Result of submitting the Instructor Edit form. */
+export interface IContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** URL to redirect to after save */
+    redirectUrl?: string;
 
     [key: string]: any;
 }

@@ -120,9 +120,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Instructors/InstructorEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T15:32:27.800Z"
     },
     {
       "id": "contosouniversity-webforms-pages-instructors-instructorlist",
