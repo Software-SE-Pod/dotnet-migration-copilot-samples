@@ -5,7 +5,8 @@ import {
   commitAll, createBranch, openPr, pushBranch,
   prIsGreen, mergePr, getPrState, getPrDiff, getPrFiles,
   postPrComment, postPrReview,
-  checkoutDefaultBranch, type PrInfo,
+  checkoutDefaultBranch, rebasePrBranch, prHasConflicts,
+  type PrInfo,
 } from "./github.js";
 import {
   readManifest, writeManifest, stamp, addBudgetUsage,
@@ -182,6 +183,27 @@ export async function reviewAndMergePr(prNumber: number): Promise<ReviewOutcome>
 
   if (prState.merged) return "closed";
   if (prState.state === "closed") return "closed";
+
+  // ── Conflict resolution: rebase onto latest default branch ──
+  const hasConflicts = await prHasConflicts(prNumber);
+  if (hasConflicts) {
+    console.log(`[review] PR #${prNumber}: has merge conflicts — rebasing onto main.`);
+    const rebased = await rebasePrBranch(prState.head);
+    if (!rebased) {
+      await postPrComment(prNumber, "⚠️ **Auto-rebase failed** — this PR has conflicts that require manual resolution.\n\nThe migration bot could not automatically rebase `" + prState.head + "` onto the default branch. Please resolve conflicts manually or close this PR so the bot can recreate it.");
+      console.log(`[review] PR #${prNumber}: rebase failed — posted comment, will close PR.`);
+      // Close the conflicting PR so next run can recreate the work cleanly
+      const { octokit: getOctokit } = await import("./github.js");
+      const gh = getOctokit();
+      const [owner, repo] = process.env.GITHUB_REPOSITORY!.split("/") as [string, string];
+      await gh.pulls.update({ owner, repo, pull_number: prNumber, state: "closed" });
+      console.log(`[review] PR #${prNumber}: closed conflicting PR — next run will recreate.`);
+      return "closed";
+    }
+    console.log(`[review] PR #${prNumber}: rebased successfully — continuing with review.`);
+    // After rebase, give GitHub a moment to recalculate mergeability
+    await new Promise(r => setTimeout(r, 5000));
+  }
 
   // CI check — if not green, wait for next cron run
   const ciGreen = await prIsGreen(prNumber);

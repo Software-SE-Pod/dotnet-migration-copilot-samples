@@ -217,6 +217,48 @@ export async function mergePr(num: number): Promise<boolean> {
   }
 }
 
+/**
+ * Rebase a PR branch onto the latest default branch to resolve conflicts.
+ * Returns true if rebase succeeded and branch was force-pushed.
+ */
+export async function rebasePrBranch(headBranch: string): Promise<boolean> {
+  if (dry()) { console.log(`[dry-run] rebase ${headBranch} onto default`); return true; }
+  const base = await getDefaultBranch();
+  try {
+    sh(`git fetch origin ${base} ${headBranch}`);
+    sh(`git checkout ${headBranch}`);
+    sh(`git reset --hard origin/${headBranch}`);
+    // Configure bot identity for rebase commits
+    sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" rebase origin/${base}`);
+    sh(`git push origin ${headBranch} --force-with-lease`);
+    console.log(`[github] rebased ${headBranch} onto ${base} and force-pushed`);
+    // Return to default branch
+    sh(`git checkout ${base}`);
+    sh(`git reset --hard origin/${base}`);
+    return true;
+  } catch (err) {
+    console.warn(`[github] rebase failed for ${headBranch}: ${err}`);
+    // Abort any in-progress rebase and return to default branch
+    try { sh(`git rebase --abort`); } catch { /* ignore */ }
+    try {
+      sh(`git checkout ${base}`);
+      sh(`git reset --hard origin/${base}`);
+    } catch { /* ignore */ }
+    return false;
+  }
+}
+
+/**
+ * Check if a PR has merge conflicts.
+ */
+export async function prHasConflicts(num: number): Promise<boolean> {
+  if (dry()) return false;
+  const gh = octokit();
+  const { owner, repo } = repoSlug();
+  const { data } = await gh.pulls.get({ owner, repo, pull_number: num });
+  return data.mergeable === false || data.mergeable_state === "dirty";
+}
+
 /** Fetch the unified diff for a PR. Returns the diff as a string. */
 export async function getPrDiff(num: number): Promise<string> {
   if (dry()) return "[dry-run] diff placeholder for PR #" + num;
