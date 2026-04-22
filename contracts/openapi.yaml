@@ -61,6 +61,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+
+  /api/contosouniversity-webforms-pages-departments-departmentedit:
+    get:
+      operationId: getContosouniversityWebformsPagesDepartmentsDepartmentedit
+      summary: Get Department Edit page view model
+      tags: [contosouniversity-webforms-pages-departments-departmentedit]
+      x-page-id: contosouniversity-webforms-pages-departments-departmentedit
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: Department ID (for edit)
+      responses:
+        "200":
+          description: Department Edit page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    post:
+      operationId: submitContosouniversityWebformsPagesDepartmentsDepartmentedit
+      summary: Submit Department Edit form
+      tags: [contosouniversity-webforms-pages-departments-departmentedit]
+      x-page-id: contosouniversity-webforms-pages-departments-departmentedit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest'
+      responses:
+        "200":
+          description: Result of submitting the Department Edit form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "409":
+          description: Concurrency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
     HealthViewModel:
@@ -201,3 +269,87 @@ components:
         redirectUrl:
           type: string
           description: URL to redirect to after save
+
+    ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel:
+      description: View model for the Department Edit page.
+      type: object
+      properties:
+        departmentId:
+          type: integer
+          description: Department ID (null for new)
+        name:
+          type: string
+          description: Department name
+        budget:
+          type: string
+          format: decimal
+          pattern: "^-?\\d+(\\.\\d{1,4})?$"
+          description: Department budget
+        startDate:
+          type: string
+          format: date-time
+          description: Department start date
+        instructorId:
+          type: integer
+          nullable: true
+          description: Administrator instructor ID
+        instructorOptions:
+          type: array
+          description: List of available instructors
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption'
+        rowVersion:
+          type: string
+          description: Row version for optimistic concurrency (base64)
+
+    ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption:
+      description: Instructor option for dropdown
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Instructor ID
+        name:
+          type: string
+          description: Instructor full name
+
+    ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest:
+      description: Request to submit the Department Edit form.
+      type: object
+      properties:
+        departmentId:
+          type: integer
+          description: Department ID (null for new)
+        name:
+          type: string
+          description: Department name
+        budget:
+          type: string
+          format: decimal
+          pattern: "^-?\\d+(\\.\\d{1,4})?$"
+          description: Department budget
+        startDate:
+          type: string
+          format: date-time
+          description: Department start date
+        instructorId:
+          type: integer
+          nullable: true
+          description: Administrator instructor ID
+        rowVersion:
+          type: string
+          description: Row version for optimistic concurrency (base64)
+
+    ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult:
+      description: Result of submitting the Department Edit form.
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded
+        redirectUrl:
+          type: string
+          description: URL to redirect to after save
+        concurrencyError:
+          type: boolean
+          description: True if there was a concurrency conflict

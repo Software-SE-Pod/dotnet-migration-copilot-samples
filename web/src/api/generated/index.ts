@@ -121,6 +121,126 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesCoursesCourselistViewModel>(null as any);
     }
+
+    /**
+     * Get Department Edit page view model
+     * @param id (optional) Department ID (for edit)
+     * @return Department Edit page view model
+     */
+    getContosouniversityWebformsPagesDepartmentsDepartmentedit(id: number | undefined): Promise<ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-departments-departmentedit?";
+        if (id === null)
+            throw new globalThis.Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesDepartmentsDepartmentedit(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesDepartmentsDepartmentedit(response: Response): Promise<ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel>(null as any);
+    }
+
+    /**
+     * Submit Department Edit form
+     * @return Result of submitting the Department Edit form
+     */
+    submitContosouniversityWebformsPagesDepartmentsDepartmentedit(body: ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest): Promise<ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-departments-departmentedit";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSubmitContosouniversityWebformsPagesDepartmentsDepartmentedit(_response);
+        });
+    }
+
+    protected processSubmitContosouniversityWebformsPagesDepartmentsDepartmentedit(response: Response): Promise<ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Concurrency conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult>(null as any);
+    }
 }
 
 export class HealthViewModel implements IHealthViewModel {
@@ -733,6 +853,306 @@ export interface IContosouniversityWebformsPagesCoursesCourseeditSubmitResult {
     success?: boolean;
     /** URL to redirect to after save */
     redirectUrl?: string;
+
+    [key: string]: any;
+}
+
+/** View model for the Department Edit page. */
+export class ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel implements IContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel {
+    /** Department ID (null for new) */
+    departmentId?: number;
+    /** Department name */
+    name?: string;
+    /** Department budget */
+    budget?: string;
+    /** Department start date */
+    startDate?: Date;
+    /** Administrator instructor ID */
+    instructorId?: number | undefined;
+    /** List of available instructors */
+    instructorOptions?: ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption[];
+    /** Row version for optimistic concurrency (base64) */
+    rowVersion?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.departmentId = _data["departmentId"];
+            this.name = _data["name"];
+            this.budget = _data["budget"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
+            this.instructorId = _data["instructorId"];
+            if (Array.isArray(_data["instructorOptions"])) {
+                this.instructorOptions = [] as any;
+                for (let item of _data["instructorOptions"])
+                    this.instructorOptions!.push(ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption.fromJS(item));
+            }
+            this.rowVersion = _data["rowVersion"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["departmentId"] = this.departmentId;
+        data["name"] = this.name;
+        data["budget"] = this.budget;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : undefined as any;
+        data["instructorId"] = this.instructorId;
+        if (Array.isArray(this.instructorOptions)) {
+            data["instructorOptions"] = [];
+            for (let item of this.instructorOptions)
+                data["instructorOptions"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["rowVersion"] = this.rowVersion;
+        return data;
+    }
+}
+
+/** View model for the Department Edit page. */
+export interface IContosouniversityWebformsPagesDepartmentsDepartmenteditViewModel {
+    /** Department ID (null for new) */
+    departmentId?: number;
+    /** Department name */
+    name?: string;
+    /** Department budget */
+    budget?: string;
+    /** Department start date */
+    startDate?: Date;
+    /** Administrator instructor ID */
+    instructorId?: number | undefined;
+    /** List of available instructors */
+    instructorOptions?: ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption[];
+    /** Row version for optimistic concurrency (base64) */
+    rowVersion?: string;
+
+    [key: string]: any;
+}
+
+/** Instructor option for dropdown */
+export class ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption implements IContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption {
+    /** Instructor ID */
+    id?: number;
+    /** Instructor full name */
+    name?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** Instructor option for dropdown */
+export interface IContosouniversityWebformsPagesDepartmentsDepartmenteditInstructorOption {
+    /** Instructor ID */
+    id?: number;
+    /** Instructor full name */
+    name?: string;
+
+    [key: string]: any;
+}
+
+/** Request to submit the Department Edit form. */
+export class ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest implements IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest {
+    /** Department ID (null for new) */
+    departmentId?: number;
+    /** Department name */
+    name?: string;
+    /** Department budget */
+    budget?: string;
+    /** Department start date */
+    startDate?: Date;
+    /** Administrator instructor ID */
+    instructorId?: number | undefined;
+    /** Row version for optimistic concurrency (base64) */
+    rowVersion?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.departmentId = _data["departmentId"];
+            this.name = _data["name"];
+            this.budget = _data["budget"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
+            this.instructorId = _data["instructorId"];
+            this.rowVersion = _data["rowVersion"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["departmentId"] = this.departmentId;
+        data["name"] = this.name;
+        data["budget"] = this.budget;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : undefined as any;
+        data["instructorId"] = this.instructorId;
+        data["rowVersion"] = this.rowVersion;
+        return data;
+    }
+}
+
+/** Request to submit the Department Edit form. */
+export interface IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest {
+    /** Department ID (null for new) */
+    departmentId?: number;
+    /** Department name */
+    name?: string;
+    /** Department budget */
+    budget?: string;
+    /** Department start date */
+    startDate?: Date;
+    /** Administrator instructor ID */
+    instructorId?: number | undefined;
+    /** Row version for optimistic concurrency (base64) */
+    rowVersion?: string;
+
+    [key: string]: any;
+}
+
+/** Result of submitting the Department Edit form. */
+export class ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult implements IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** URL to redirect to after save */
+    redirectUrl?: string;
+    /** True if there was a concurrency conflict */
+    concurrencyError?: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.redirectUrl = _data["redirectUrl"];
+            this.concurrencyError = _data["concurrencyError"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["redirectUrl"] = this.redirectUrl;
+        data["concurrencyError"] = this.concurrencyError;
+        return data;
+    }
+}
+
+/** Result of submitting the Department Edit form. */
+export interface IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** URL to redirect to after save */
+    redirectUrl?: string;
+    /** True if there was a concurrency conflict */
+    concurrencyError?: boolean;
 
     [key: string]: any;
 }
