@@ -9,11 +9,15 @@ import { discoverAspxPages, classify } from "./pageClassifier.js";
 import {
   commitAll, pushBranch, createBranch, openPr,
   checkoutDefaultBranch, getDefaultBranch, getActiveMigrationPr,
+  prIsGreen, mergePr,
 } from "./github.js";
 
 const BUDGET_MINUTES = parseInt(process.env.MIGRATION_BUDGET_MINUTES ?? "270", 10);
 const TARGET_REPO   = process.env.MIGRATION_TARGET_REPO ?? process.cwd();
 const started = Date.now();
+
+const CI_POLL_INTERVAL_S = 30;
+const CI_MAX_WAIT_S = 600; // 10 minutes max wait for CI
 
 /* ---------- helpers ---------- */
 
@@ -23,6 +27,25 @@ function wallClockExceeded(): boolean {
 
 async function ensureMigrationFolder(): Promise<void> {
   await fs.mkdir(path.resolve(".migration"), { recursive: true });
+}
+
+/** Poll CI checks and merge once green. Returns true if merged. */
+async function waitAndMerge(prNumber: number): Promise<boolean> {
+  const deadline = Date.now() + CI_MAX_WAIT_S * 1000;
+  while (Date.now() < deadline && !wallClockExceeded()) {
+    await new Promise(r => setTimeout(r, CI_POLL_INTERVAL_S * 1000));
+    const green = await prIsGreen(prNumber);
+    if (green) {
+      console.log(`[orchestrator] CI green for PR #${prNumber} — merging.`);
+      const ok = await mergePr(prNumber);
+      if (ok) return true;
+      console.warn(`[orchestrator] merge failed for PR #${prNumber} after CI green.`);
+      return false;
+    }
+    const elapsed = Math.round((Date.now() - (deadline - CI_MAX_WAIT_S * 1000)) / 1000);
+    console.log(`[orchestrator] CI still pending for PR #${prNumber} (${elapsed}s / ${CI_MAX_WAIT_S}s)…`);
+  }
+  return false;
 }
 
 /* ---------- inventory ---------- */
@@ -150,9 +173,20 @@ async function main(): Promise<void> {
         await closePr(activePr.number);
         continue;
       }
-      // ci-pending, approved-not-mergeable → stop for now
-      console.log(`[orchestrator] PR #${activePr.number} not ready (${result}) — stopping, will resume next cron.`);
-      return;
+      if (result === "ci-pending" || result === "approved-not-mergeable") {
+        // Wait for CI inline instead of stopping — poll every 30s up to 10 min
+        console.log(`[orchestrator] PR #${activePr.number} ${result} — polling CI inline…`);
+        const merged = await waitAndMerge(activePr.number);
+        if (merged) {
+          console.log(`[orchestrator] PR #${activePr.number} merged after CI wait ✅`);
+          continue;
+        }
+        // If we couldn't merge after waiting, loop back (re-review on next iteration)
+        console.log(`[orchestrator] PR #${activePr.number} still not mergeable — will retry next iteration.`);
+        continue;
+      }
+      console.log(`[orchestrator] PR #${activePr.number} unexpected result (${result}) — continuing.`);
+      continue;
     }
 
     // ── Step 2: No open PR — pick the next task and create ONE PR. ──
