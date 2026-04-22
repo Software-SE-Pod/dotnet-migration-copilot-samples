@@ -105,12 +105,12 @@ function inventoryBody(manifest: { pages: Array<{ scenario: string; status: stri
 /* ---------- main ---------- */
 
 /**
- * ONE-PR-AT-A-TIME FLOW
+ * CONTINUOUS ONE-PR-AT-A-TIME LOOP
  *
- * Each cron run:
- *   1. If an open migration PR exists → review → merge → done
- *   2. If no open PR → create ONE new PR (next task) → done
- *   3. Next cron run picks up from there
+ * Within a single run (budget permitting):
+ *   1. If an open migration PR exists → review → merge (or wait for CI)
+ *   2. After merge (or if no open PR) → create next PR → review → merge → repeat
+ *   3. Stop when: budget exhausted, CI pending, migration complete, or error
  */
 async function main(): Promise<void> {
   console.log(`[orchestrator] starting run, budget=${BUDGET_MINUTES}min`);
@@ -120,69 +120,85 @@ async function main(): Promise<void> {
   const defaultBranch = await getDefaultBranch();
   console.log(`[orchestrator] default branch: ${defaultBranch}`);
 
-  // ── Step 1: Is there an open migration PR? Review + merge it. ──
-  const activePr = await getActiveMigrationPr();
-  if (activePr) {
-    console.log(`[orchestrator] found open migration PR #${activePr.number} (${activePr.head})`);
-    const result = await reviewAndMergePr(activePr.number);
-    console.log(`[orchestrator] PR #${activePr.number} → ${result}`);
-    // Whether merged or still open, we're done for this run.
-    // If merged, next cron run will create the next PR.
-    return;
-  }
+  let iteration = 0;
 
-  // ── Step 2: No open PR — pick the next task and create ONE PR. ──
-  console.log("[orchestrator] no open migration PR — advancing pipeline.");
+  while (!wallClockExceeded()) {
+    iteration++;
+    console.log(`\n[orchestrator] ── iteration ${iteration} ──`);
 
-  if (wallClockExceeded()) {
-    console.log("[orchestrator] budget exceeded before starting work — skipping.");
-    return;
-  }
+    // ── Step 1: Is there an open migration PR? Review + merge it. ──
+    const activePr = await getActiveMigrationPr();
+    if (activePr) {
+      console.log(`[orchestrator] found open migration PR #${activePr.number} (${activePr.head})`);
+      const result = await reviewAndMergePr(activePr.number);
+      console.log(`[orchestrator] PR #${activePr.number} → ${result}`);
 
-  // Ensure page inventory exists (creates a PR if first run).
-  const invResult = await ensurePageInventory();
-  if (invResult === "created-pr") {
-    console.log("[orchestrator] created inventory PR — done for this run.");
-    return;
-  }
-  if (invResult === "empty") return;
-
-  const manifest = await readManifest();
-  if (budgetExhausted(manifest)) {
-    console.log("[orchestrator] premium-request cap reached — yielding.");
-    return;
-  }
-
-  // Bootstrap phases first, then pages.
-  if (!bootstrapComplete(manifest)) {
-    const phase = nextPendingPhase(manifest);
-    if (!phase) {
-      console.log("[orchestrator] bootstrap has unrecoverable failures — human intervention required.");
+      if (result === "merged") {
+        // Successfully merged — loop back to create the next PR
+        console.log(`[orchestrator] merge complete — continuing to next task.`);
+        continue;
+      }
+      // ci-pending, changes-requested, approved-not-mergeable, closed → stop for now
+      if (result === "closed") {
+        // PR was closed (e.g. conflict couldn't be rebased) — loop to recreate
+        console.log(`[orchestrator] PR closed — will recreate on next iteration.`);
+        continue;
+      }
+      console.log(`[orchestrator] PR #${activePr.number} not ready (${result}) — stopping, will resume next cron.`);
       return;
     }
-    console.log(`[orchestrator] bootstrap phase: ${phase}`);
-    await runBootstrapPhase(phase);
-    return;
-  }
 
-  const page = nextPendingPage(manifest);
-  if (!page) {
-    const remaining = manifest.pages.filter(
-      p => !["done", "blocked", "needs-human"].includes(p.status),
-    );
-    if (remaining.length === 0) {
-      console.log("[orchestrator] ✅ migration complete — all pages done or blocked.");
-    } else {
-      console.log(`[orchestrator] ${remaining.length} pages in-flight/failed — waiting.`);
+    // ── Step 2: No open PR — pick the next task and create ONE PR. ──
+    console.log("[orchestrator] no open migration PR — advancing pipeline.");
+
+    // Ensure page inventory exists (creates a PR if first run).
+    const invResult = await ensurePageInventory();
+    if (invResult === "created-pr") {
+      console.log("[orchestrator] created inventory PR — looping to review it.");
+      continue;
     }
-    return;
-  }
+    if (invResult === "empty") return;
 
-  console.log(`[orchestrator] contract phase: ${page.id} (${page.scenario}/${page.risk})`);
-  await runContractPhase(page);
+    const manifest = await readManifest();
+    if (budgetExhausted(manifest)) {
+      console.log("[orchestrator] premium-request cap reached — yielding.");
+      return;
+    }
+
+    // Bootstrap phases first, then pages.
+    if (!bootstrapComplete(manifest)) {
+      const phase = nextPendingPhase(manifest);
+      if (!phase) {
+        console.log("[orchestrator] bootstrap has unrecoverable failures — human intervention required.");
+        return;
+      }
+      console.log(`[orchestrator] bootstrap phase: ${phase}`);
+      await runBootstrapPhase(phase);
+      console.log(`[orchestrator] bootstrap PR created — looping to review it.`);
+      continue;
+    }
+
+    const page = nextPendingPage(manifest);
+    if (!page) {
+      const remaining = manifest.pages.filter(
+        p => !["done", "blocked", "needs-human"].includes(p.status),
+      );
+      if (remaining.length === 0) {
+        console.log("[orchestrator] ✅ migration complete — all pages done or blocked.");
+      } else {
+        console.log(`[orchestrator] ${remaining.length} pages in-flight/failed — waiting.`);
+      }
+      return;
+    }
+
+    console.log(`[orchestrator] contract phase: ${page.id} (${page.scenario}/${page.risk})`);
+    await runContractPhase(page);
+    console.log(`[orchestrator] contract PR created — looping to review it.`);
+    continue;
+  }
 
   const elapsed = ((Date.now() - started) / 60_000).toFixed(1);
-  console.log(`[orchestrator] run complete after ${elapsed}min`);
+  console.log(`[orchestrator] budget exhausted after ${iteration} iterations, ${elapsed}min`);
 }
 
 main().catch(err => {
