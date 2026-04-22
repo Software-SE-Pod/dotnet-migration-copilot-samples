@@ -132,9 +132,10 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "",
-      "status": "contract-open",
-      "lastUpdated": "2026-04-22T15:37:49.699Z"
+      "notes": "PR #38 merged",
+      "status": "done",
+      "lastUpdated": "2026-04-22T15:42:29.187Z",
+      "contractPr": 38
     },
     {
       "id": "contosouniversity-webforms-pages-reports-enrollmentstats",
