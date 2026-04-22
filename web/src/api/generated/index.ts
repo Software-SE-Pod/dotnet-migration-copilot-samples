@@ -54,6 +54,73 @@ export class Client {
         }
         return Promise.resolve<HealthViewModel>(null as any);
     }
+
+    /**
+     * Get Course List page view model
+     * @param departmentId (optional) Filter by department ID
+     * @param page (optional) Page index (zero-based)
+     * @param pageSize (optional) Page size
+     * @return Course List page view model
+     */
+    getContosouniversityWebformsPagesCoursesCourselist(departmentId: number | undefined, page: number | undefined, pageSize: number | undefined): Promise<ContosouniversityWebformsPagesCoursesCourselistViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-courses-courselist?";
+        if (departmentId === null)
+            throw new globalThis.Error("The parameter 'departmentId' cannot be null.");
+        else if (departmentId !== undefined)
+            url_ += "departmentId=" + encodeURIComponent("" + departmentId) + "&";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesCoursesCourselist(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesCoursesCourselist(response: Response): Promise<ContosouniversityWebformsPagesCoursesCourselistViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesCoursesCourselistViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesCoursesCourselistViewModel>(null as any);
+    }
 }
 
 export class HealthViewModel implements IHealthViewModel {
@@ -164,6 +231,238 @@ export interface IProblemDetails {
     status?: number;
     detail?: string;
     instance?: string;
+
+    [key: string]: any;
+}
+
+/** View model for the Course List page. */
+export class ContosouniversityWebformsPagesCoursesCourselistViewModel implements IContosouniversityWebformsPagesCoursesCourselistViewModel {
+    /** List of available departments */
+    departmentOptions?: ContosouniversityWebformsPagesCoursesCourselistDepartmentOption[];
+    /** Selected department ID for filtering */
+    selectedDepartmentId?: number;
+    /** List of courses for the grid */
+    courses?: ContosouniversityWebformsPagesCoursesCourselistCourseItem[];
+    /** Current page index (zero-based) */
+    page?: number;
+    /** Page size */
+    pageSize?: number;
+    /** Total number of courses */
+    totalCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourselistViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["departmentOptions"])) {
+                this.departmentOptions = [] as any;
+                for (let item of _data["departmentOptions"])
+                    this.departmentOptions!.push(ContosouniversityWebformsPagesCoursesCourselistDepartmentOption.fromJS(item));
+            }
+            this.selectedDepartmentId = _data["selectedDepartmentId"];
+            if (Array.isArray(_data["courses"])) {
+                this.courses = [] as any;
+                for (let item of _data["courses"])
+                    this.courses!.push(ContosouniversityWebformsPagesCoursesCourselistCourseItem.fromJS(item));
+            }
+            this.page = _data["page"];
+            this.pageSize = _data["pageSize"];
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourselistViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourselistViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.departmentOptions)) {
+            data["departmentOptions"] = [];
+            for (let item of this.departmentOptions)
+                data["departmentOptions"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["selectedDepartmentId"] = this.selectedDepartmentId;
+        if (Array.isArray(this.courses)) {
+            data["courses"] = [];
+            for (let item of this.courses)
+                data["courses"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["page"] = this.page;
+        data["pageSize"] = this.pageSize;
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+/** View model for the Course List page. */
+export interface IContosouniversityWebformsPagesCoursesCourselistViewModel {
+    /** List of available departments */
+    departmentOptions?: ContosouniversityWebformsPagesCoursesCourselistDepartmentOption[];
+    /** Selected department ID for filtering */
+    selectedDepartmentId?: number;
+    /** List of courses for the grid */
+    courses?: ContosouniversityWebformsPagesCoursesCourselistCourseItem[];
+    /** Current page index (zero-based) */
+    page?: number;
+    /** Page size */
+    pageSize?: number;
+    /** Total number of courses */
+    totalCount?: number;
+
+    [key: string]: any;
+}
+
+/** Department option for dropdown */
+export class ContosouniversityWebformsPagesCoursesCourselistDepartmentOption implements IContosouniversityWebformsPagesCoursesCourselistDepartmentOption {
+    /** Department ID */
+    id?: number;
+    /** Department name */
+    name?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourselistDepartmentOption) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourselistDepartmentOption {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourselistDepartmentOption();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** Department option for dropdown */
+export interface IContosouniversityWebformsPagesCoursesCourselistDepartmentOption {
+    /** Department ID */
+    id?: number;
+    /** Department name */
+    name?: string;
+
+    [key: string]: any;
+}
+
+/** Course item for the grid */
+export class ContosouniversityWebformsPagesCoursesCourselistCourseItem implements IContosouniversityWebformsPagesCoursesCourselistCourseItem {
+    /** Course number (1-9999) */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+    /** Number of credits (0-5) */
+    credits?: number;
+    /** Department name */
+    departmentName?: string;
+    /** Number of students enrolled */
+    enrolledCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourselistCourseItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.credits = _data["credits"];
+            this.departmentName = _data["departmentName"];
+            this.enrolledCount = _data["enrolledCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourselistCourseItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourselistCourseItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["credits"] = this.credits;
+        data["departmentName"] = this.departmentName;
+        data["enrolledCount"] = this.enrolledCount;
+        return data;
+    }
+}
+
+/** Course item for the grid */
+export interface IContosouniversityWebformsPagesCoursesCourselistCourseItem {
+    /** Course number (1-9999) */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+    /** Number of credits (0-5) */
+    credits?: number;
+    /** Department name */
+    departmentName?: string;
+    /** Number of students enrolled */
+    enrolledCount?: number;
 
     [key: string]: any;
 }

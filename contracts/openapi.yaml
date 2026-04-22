@@ -19,6 +19,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthViewModel'
+
+  /api/contosouniversity-webforms-pages-courses-courselist:
+    get:
+      operationId: getContosouniversityWebformsPagesCoursesCourselist
+      summary: Get Course List page view model
+      tags: [contosouniversity-webforms-pages-courses-courselist]
+      x-page-id: contosouniversity-webforms-pages-courses-courselist
+      parameters:
+        - in: query
+          name: departmentId
+          schema:
+            type: integer
+          description: Filter by department ID
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page index (zero-based)
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: Page size
+      responses:
+        "200":
+          description: Course List page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesCoursesCourselistViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
     HealthViewModel:
@@ -40,6 +82,64 @@ components:
           type: string
         instance:
           type: string
+
+    ContosouniversityWebformsPagesCoursesCourselistViewModel:
+      description: View model for the Course List page.
+      type: object
+      properties:
+        departmentOptions:
+          type: array
+          description: List of available departments
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesCoursesCourselistDepartmentOption'
+        selectedDepartmentId:
+          type: integer
+          description: Selected department ID for filtering
+        courses:
+          type: array
+          description: List of courses for the grid
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesCoursesCourselistCourseItem'
+        page:
+          type: integer
+          description: Current page index (zero-based)
+        pageSize:
+          type: integer
+          description: Page size
+        totalCount:
+          type: integer
+          description: Total number of courses
+
+    ContosouniversityWebformsPagesCoursesCourselistDepartmentOption:
+      description: Department option for dropdown
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Department ID
+        name:
+          type: string
+          description: Department name
+
+    ContosouniversityWebformsPagesCoursesCourselistCourseItem:
+      description: Course item for the grid
+      type: object
+      properties:
+        courseId:
+          type: integer
+          description: Course number (1-9999)
+        title:
+          type: string
+          description: Course title
+        credits:
+          type: integer
+          description: Number of credits (0-5)
+        departmentName:
+          type: string
+          description: Department name
+        enrolledCount:
+          type: integer
+          description: Number of students enrolled
 
     ContosouniversityWebformsPagesCoursesCourseeditViewModel:
       description: View model for the Course Edit page.
