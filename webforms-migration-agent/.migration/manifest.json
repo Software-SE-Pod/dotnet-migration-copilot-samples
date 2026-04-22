@@ -70,9 +70,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Courses/CourseEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "updatePanels=0 viewState=false session=false master=true evalBind=false codeBehindLines=75",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T10:16:54.125Z"
     },
     {
       "id": "contosouniversity-webforms-pages-courses-courselist",
