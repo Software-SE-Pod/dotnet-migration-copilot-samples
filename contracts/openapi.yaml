@@ -6,6 +6,73 @@ servers:
   - url: http://localhost:5000
   - url: http://localhost:5173
 paths:
+  /api/contosouniversity-webforms-pages-departments-departmentlist:
+    get:
+      operationId: getContosouniversityWebformsPagesDepartmentsDepartmentlist
+      summary: Get Departments grid page view model
+      tags: [contosouniversity-webforms-pages-departments-departmentlist]
+      x-page-id: contosouniversity-webforms-pages-departments-departmentlist
+      responses:
+        "200":
+          description: Departments grid page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/contosouniversity-webforms-pages-departments-departmentlist/items:
+    get:
+      operationId: listContosouniversityWebformsPagesDepartmentsDepartmentlistItems
+      summary: List departments for grid with paging and sorting
+      tags: [contosouniversity-webforms-pages-departments-departmentlist]
+      x-page-id: contosouniversity-webforms-pages-departments-departmentlist
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page index (zero-based)
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: Page size
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Sort expression (e.g. "Name:asc")
+      responses:
+        "200":
+          description: Paged list of departments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
   /api/contosouniversity-webforms-pages-default:
     get:
       operationId: getContosouniversityWebformsPagesDefault
@@ -459,6 +526,53 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel:
+      description: View model for the Departments grid page.
+      type: object
+      properties:
+        items:
+          type: array
+          description: List of departments
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem'
+        totalCount:
+          type: integer
+          description: Total number of departments (for pagination)
+    ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem:
+      description: Department item for the grid
+      type: object
+      properties:
+        departmentId:
+          type: integer
+          description: Department ID
+        name:
+          type: string
+          description: Department name
+        budget:
+          type: string
+          format: decimal
+          pattern: "^-?\\d+(\\.\\d{1,4})?$"
+          description: Department budget
+        startDate:
+          type: string
+          format: date-time
+          description: Department start date
+        administrator:
+          type: string
+          description: Administrator full name
+    PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage:
+      description: Envelope for paged grid results
+      type: object
+      properties:
+        items:
+          type: array
+          description: List of departments
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem'
+        totalCount:
+          type: integer
+          description: Total number of departments
+
     ContosouniversityWebformsPagesDefaultViewModel:
       description: View model for the Default dashboard page.
       type: object

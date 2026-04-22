@@ -115,9 +115,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Departments/DepartmentList.aspx",
       "scenario": "grid",
       "risk": "medium",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T16:08:56.015Z"
     },
     {
       "id": "contosouniversity-webforms-pages-instructors-instructoredit",
