@@ -18,6 +18,120 @@ export class Client {
     }
 
     /**
+     * Get Enrollment Stats page view model
+     * @param departmentId (optional) Filter by department ID
+     * @return Enrollment Stats page view model
+     */
+    getContosouniversityWebformsPagesReportsEnrollmentstats(departmentId: number | undefined): Promise<ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-reports-enrollmentstats?";
+        if (departmentId === null)
+            throw new globalThis.Error("The parameter 'departmentId' cannot be null.");
+        else if (departmentId !== undefined)
+            url_ += "departmentId=" + encodeURIComponent("" + departmentId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesReportsEnrollmentstats(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesReportsEnrollmentstats(response: Response): Promise<ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel>(null as any);
+    }
+
+    /**
+     * Export Enrollment Stats report as CSV
+     * @param body (optional) 
+     * @return CSV export result
+     */
+    exportContosouniversityWebformsPagesReportsEnrollmentstats(body: Body | undefined): Promise<ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-reports-enrollmentstats/export";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processExportContosouniversityWebformsPagesReportsEnrollmentstats(_response);
+        });
+    }
+
+    protected processExportContosouniversityWebformsPagesReportsEnrollmentstats(response: Response): Promise<ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult>(null as any);
+    }
+
+    /**
      * Health check
      * @return OK
      */
@@ -421,6 +535,338 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel>(null as any);
     }
+}
+
+/** View model for the Enrollment Stats page. */
+export class ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel implements IContosouniversityWebformsPagesReportsEnrollmentstatsViewModel {
+    /** List of available departments */
+    departmentOptions?: ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption[];
+    /** Selected department ID for filtering */
+    selectedDepartmentId?: number;
+    /** List of enrollment statistics by course */
+    enrollments?: ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem[];
+    /** List of yearly enrollment counts */
+    yearlyStats?: ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat[];
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesReportsEnrollmentstatsViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["departmentOptions"])) {
+                this.departmentOptions = [] as any;
+                for (let item of _data["departmentOptions"])
+                    this.departmentOptions!.push(ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption.fromJS(item));
+            }
+            this.selectedDepartmentId = _data["selectedDepartmentId"];
+            if (Array.isArray(_data["enrollments"])) {
+                this.enrollments = [] as any;
+                for (let item of _data["enrollments"])
+                    this.enrollments!.push(ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem.fromJS(item));
+            }
+            if (Array.isArray(_data["yearlyStats"])) {
+                this.yearlyStats = [] as any;
+                for (let item of _data["yearlyStats"])
+                    this.yearlyStats!.push(ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.departmentOptions)) {
+            data["departmentOptions"] = [];
+            for (let item of this.departmentOptions)
+                data["departmentOptions"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["selectedDepartmentId"] = this.selectedDepartmentId;
+        if (Array.isArray(this.enrollments)) {
+            data["enrollments"] = [];
+            for (let item of this.enrollments)
+                data["enrollments"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.yearlyStats)) {
+            data["yearlyStats"] = [];
+            for (let item of this.yearlyStats)
+                data["yearlyStats"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+/** View model for the Enrollment Stats page. */
+export interface IContosouniversityWebformsPagesReportsEnrollmentstatsViewModel {
+    /** List of available departments */
+    departmentOptions?: ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption[];
+    /** Selected department ID for filtering */
+    selectedDepartmentId?: number;
+    /** List of enrollment statistics by course */
+    enrollments?: ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem[];
+    /** List of yearly enrollment counts */
+    yearlyStats?: ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat[];
+
+    [key: string]: any;
+}
+
+/** Department option for dropdown */
+export class ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption implements IContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption {
+    /** Department ID */
+    id?: number;
+    /** Department name */
+    name?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** Department option for dropdown */
+export interface IContosouniversityWebformsPagesReportsEnrollmentstatsDepartmentOption {
+    /** Department ID */
+    id?: number;
+    /** Department name */
+    name?: string;
+
+    [key: string]: any;
+}
+
+/** Enrollment statistics for a course */
+export class ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem implements IContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem {
+    /** Course title */
+    courseTitle?: string;
+    /** Department name */
+    departmentName?: string;
+    /** Number of students enrolled */
+    enrollmentCount?: number;
+    /** Average grade (0.0-4.0) */
+    averageGrade?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.courseTitle = _data["courseTitle"];
+            this.departmentName = _data["departmentName"];
+            this.enrollmentCount = _data["enrollmentCount"];
+            this.averageGrade = _data["averageGrade"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["courseTitle"] = this.courseTitle;
+        data["departmentName"] = this.departmentName;
+        data["enrollmentCount"] = this.enrollmentCount;
+        data["averageGrade"] = this.averageGrade;
+        return data;
+    }
+}
+
+/** Enrollment statistics for a course */
+export interface IContosouniversityWebformsPagesReportsEnrollmentstatsEnrollmentItem {
+    /** Course title */
+    courseTitle?: string;
+    /** Department name */
+    departmentName?: string;
+    /** Number of students enrolled */
+    enrollmentCount?: number;
+    /** Average grade (0.0-4.0) */
+    averageGrade?: number;
+
+    [key: string]: any;
+}
+
+/** Yearly enrollment count */
+export class ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat implements IContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat {
+    /** Enrollment year */
+    year?: number;
+    /** Number of students enrolled in the year */
+    count?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.year = _data["year"];
+            this.count = _data["count"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["year"] = this.year;
+        data["count"] = this.count;
+        return data;
+    }
+}
+
+/** Yearly enrollment count */
+export interface IContosouniversityWebformsPagesReportsEnrollmentstatsYearlyStat {
+    /** Enrollment year */
+    year?: number;
+    /** Number of students enrolled in the year */
+    count?: number;
+
+    [key: string]: any;
+}
+
+/** Result of exporting the Enrollment Stats report as CSV. */
+export class ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult implements IContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult {
+    /** Download URL for the CSV file */
+    url?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.url = _data["url"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["url"] = this.url;
+        return data;
+    }
+}
+
+/** Result of exporting the Enrollment Stats report as CSV. */
+export interface IContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult {
+    /** Download URL for the CSV file */
+    url?: string;
+
+    [key: string]: any;
 }
 
 /** View model for the Instructor List page. */
@@ -1933,6 +2379,56 @@ export interface IContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitR
     redirectUrl?: string;
     /** True if there was a concurrency conflict */
     concurrencyError?: boolean;
+
+    [key: string]: any;
+}
+
+export class Body implements IBody {
+    /** Filter by department ID */
+    departmentId?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IBody) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.departmentId = _data["departmentId"];
+        }
+    }
+
+    static fromJS(data: any): Body {
+        data = typeof data === 'object' ? data : {};
+        let result = new Body();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["departmentId"] = this.departmentId;
+        return data;
+    }
+}
+
+export interface IBody {
+    /** Filter by department ID */
+    departmentId?: number;
 
     [key: string]: any;
 }
