@@ -2,46 +2,28 @@
   "version": 1,
   "bootstrap": {
     "solution": {
-      "status": "done",
-      "attempts": 4,
-      "lastUpdated": "2026-04-22T09:59:01.094Z",
-      "pr": 11,
-      "notes": "PR #11 merged"
+      "status": "pending",
+      "attempts": 0
     },
     "identity": {
-      "status": "done",
-      "attempts": 1,
-      "lastUpdated": "2026-04-22T10:02:40.171Z",
-      "pr": 12,
-      "notes": "PR #12 merged"
+      "status": "pending",
+      "attempts": 0
     },
     "data": {
-      "status": "done",
-      "attempts": 1,
-      "lastUpdated": "2026-04-22T10:06:11.586Z",
-      "pr": 13,
-      "notes": "PR #13 merged"
+      "status": "pending",
+      "attempts": 0
     },
     "secrets": {
-      "status": "done",
-      "attempts": 1,
-      "lastUpdated": "2026-04-22T10:09:44.478Z",
-      "pr": 14,
-      "notes": "PR #14 merged"
+      "status": "pending",
+      "attempts": 0
     },
     "storage": {
-      "status": "done",
-      "attempts": 1,
-      "lastUpdated": "2026-04-22T10:13:19.931Z",
-      "pr": 15,
-      "notes": "PR #15 merged"
+      "status": "pending",
+      "attempts": 0
     },
     "adapters": {
-      "status": "done",
-      "attempts": 1,
-      "lastUpdated": "2026-04-22T10:16:52.358Z",
-      "pr": 16,
-      "notes": "PR #16 merged"
+      "status": "pending",
+      "attempts": 0
     }
   },
   "pages": [
@@ -50,10 +32,9 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Admin/Dashboard.aspx",
       "scenario": "dashboard",
       "risk": "medium",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:41:29.139Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-admin-login",
@@ -70,105 +51,94 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Courses/CourseEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:16:54.125Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-courses-courselist",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Courses/CourseList.aspx",
       "scenario": "grid",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:20:26.558Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-default",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Default.aspx",
       "scenario": "dashboard",
       "risk": "medium",
-      "attempts": 1,
-      "notes": "PR #25 merged",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:45:37.230Z",
-      "contractPr": 25
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentedit",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Departments/DepartmentEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:23:58.757Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentlist",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Departments/DepartmentList.aspx",
       "scenario": "grid",
       "risk": "medium",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:45:38.935Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-instructors-instructoredit",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Instructors/InstructorEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:27:32.165Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-instructors-instructorlist",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Instructors/InstructorList.aspx",
       "scenario": "grid",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:31:01.296Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-reports-enrollmentstats",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Reports/EnrollmentStats.aspx",
       "scenario": "grid",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:34:26.876Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentedit",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Students/StudentEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:37:57.245Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentlist",
       "aspxPath": "ContosoUniversity.WebForms/Pages/Students/StudentList.aspx",
       "scenario": "grid",
       "risk": "medium",
-      "attempts": 1,
-      "notes": "auto-recovered: PR likely merged but manifest not updated",
-      "status": "done",
-      "lastUpdated": "2026-04-22T10:49:12.110Z"
+      "attempts": 0,
+      "notes": "",
+      "status": "pending"
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 10,
+    "premiumRequestsUsed": 0,
     "premiumRequestsCap": 2000
   }
 }
