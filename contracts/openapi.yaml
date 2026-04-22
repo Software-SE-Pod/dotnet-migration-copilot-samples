@@ -6,6 +6,109 @@ servers:
   - url: http://localhost:5000
   - url: http://localhost:5173
 paths:
+  /api/contosouniversity-webforms-pages-students-studentlist:
+    get:
+      operationId: getContosouniversityWebformsPagesStudentsStudentlist
+      summary: Get Students grid page view model
+      tags: [contosouniversity-webforms-pages-students-studentlist]
+      x-page-id: contosouniversity-webforms-pages-students-studentlist
+      responses:
+        "200":
+          description: Students grid page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudentlistViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/contosouniversity-webforms-pages-students-studentlist/items:
+    get:
+      operationId: listContosouniversityWebformsPagesStudentsStudentlistItems
+      summary: List students for grid with paging and sorting
+      tags: [contosouniversity-webforms-pages-students-studentlist]
+      x-page-id: contosouniversity-webforms-pages-students-studentlist
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page index (zero-based)
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: Page size
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Sort expression (e.g. "LastName:asc")
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search string for student name
+      responses:
+        "200":
+          description: Paged list of students
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageContosouniversityWebformsPagesStudentsStudentlistPage'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/contosouniversity-webforms-pages-students-studentlist/items/{id}:
+    delete:
+      operationId: deleteContosouniversityWebformsPagesStudentsStudentlistItem
+      summary: Delete a student by ID
+      tags: [contosouniversity-webforms-pages-students-studentlist]
+      x-page-id: contosouniversity-webforms-pages-students-studentlist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Student ID
+      responses:
+        "200":
+          description: Student delete result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudentlistDeleteResult'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/contosouniversity-webforms-pages-departments-departmentlist:
     get:
       operationId: getContosouniversityWebformsPagesDepartmentsDepartmentlist
@@ -526,6 +629,60 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    ContosouniversityWebformsPagesStudentsStudentlistViewModel:
+      description: View model for the Students grid page.
+      type: object
+      properties:
+        items:
+          type: array
+          description: List of students
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudentlistStudentItem'
+        totalCount:
+          type: integer
+          description: Total number of students (for pagination)
+    ContosouniversityWebformsPagesStudentsStudentlistStudentItem:
+      description: Student item for the grid
+      type: object
+      properties:
+        studentId:
+          type: integer
+          description: Student ID
+        lastName:
+          type: string
+          description: Student last name
+        firstMidName:
+          type: string
+          description: Student first and middle name
+        enrollmentDate:
+          type: string
+          format: date-time
+          description: Student enrollment date
+        enrollmentsCount:
+          type: integer
+          description: Number of enrollments
+    PageContosouniversityWebformsPagesStudentsStudentlistPage:
+      description: Envelope for paged grid results
+      type: object
+      properties:
+        items:
+          type: array
+          description: List of students
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudentlistStudentItem'
+        totalCount:
+          type: integer
+          description: Total number of students
+    ContosouniversityWebformsPagesStudentsStudentlistDeleteResult:
+      description: Result of deleting a student from the grid.
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded
+        errorMessage:
+          type: string
+          description: Error message if delete failed
     ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel:
       description: View model for the Departments grid page.
       type: object

@@ -18,6 +18,186 @@ export class Client {
     }
 
     /**
+     * Get Students grid page view model
+     * @return Students grid page view model
+     */
+    getContosouniversityWebformsPagesStudentsStudentlist(): Promise<ContosouniversityWebformsPagesStudentsStudentlistViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-students-studentlist";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesStudentsStudentlist(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesStudentsStudentlist(response: Response): Promise<ContosouniversityWebformsPagesStudentsStudentlistViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesStudentsStudentlistViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesStudentsStudentlistViewModel>(null as any);
+    }
+
+    /**
+     * List students for grid with paging and sorting
+     * @param page (optional) Page index (zero-based)
+     * @param pageSize (optional) Page size
+     * @param sort (optional) Sort expression (e.g. "LastName:asc")
+     * @param search (optional) Search string for student name
+     * @return Paged list of students
+     */
+    listContosouniversityWebformsPagesStudentsStudentlistItems(page: number | undefined, pageSize: number | undefined, sort: string | undefined, search: string | undefined): Promise<PageContosouniversityWebformsPagesStudentsStudentlistPage> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-students-studentlist/items?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processListContosouniversityWebformsPagesStudentsStudentlistItems(_response);
+        });
+    }
+
+    protected processListContosouniversityWebformsPagesStudentsStudentlistItems(response: Response): Promise<PageContosouniversityWebformsPagesStudentsStudentlistPage> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageContosouniversityWebformsPagesStudentsStudentlistPage.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageContosouniversityWebformsPagesStudentsStudentlistPage>(null as any);
+    }
+
+    /**
+     * Delete a student by ID
+     * @param id Student ID
+     * @return Student delete result
+     */
+    deleteContosouniversityWebformsPagesStudentsStudentlistItem(id: number): Promise<ContosouniversityWebformsPagesStudentsStudentlistDeleteResult> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-students-studentlist/items/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteContosouniversityWebformsPagesStudentsStudentlistItem(_response);
+        });
+    }
+
+    protected processDeleteContosouniversityWebformsPagesStudentsStudentlistItem(response: Response): Promise<ContosouniversityWebformsPagesStudentsStudentlistDeleteResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesStudentsStudentlistDeleteResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesStudentsStudentlistDeleteResult>(null as any);
+    }
+
+    /**
      * Get Departments grid page view model
      * @return Departments grid page view model
      */
@@ -889,6 +1069,272 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel>(null as any);
     }
+}
+
+/** View model for the Students grid page. */
+export class ContosouniversityWebformsPagesStudentsStudentlistViewModel implements IContosouniversityWebformsPagesStudentsStudentlistViewModel {
+    /** List of students */
+    items?: ContosouniversityWebformsPagesStudentsStudentlistStudentItem[];
+    /** Total number of students (for pagination) */
+    totalCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesStudentsStudentlistViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ContosouniversityWebformsPagesStudentsStudentlistStudentItem.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesStudentsStudentlistViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesStudentsStudentlistViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+/** View model for the Students grid page. */
+export interface IContosouniversityWebformsPagesStudentsStudentlistViewModel {
+    /** List of students */
+    items?: ContosouniversityWebformsPagesStudentsStudentlistStudentItem[];
+    /** Total number of students (for pagination) */
+    totalCount?: number;
+
+    [key: string]: any;
+}
+
+/** Student item for the grid */
+export class ContosouniversityWebformsPagesStudentsStudentlistStudentItem implements IContosouniversityWebformsPagesStudentsStudentlistStudentItem {
+    /** Student ID */
+    studentId?: number;
+    /** Student last name */
+    lastName?: string;
+    /** Student first and middle name */
+    firstMidName?: string;
+    /** Student enrollment date */
+    enrollmentDate?: Date;
+    /** Number of enrollments */
+    enrollmentsCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesStudentsStudentlistStudentItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.studentId = _data["studentId"];
+            this.lastName = _data["lastName"];
+            this.firstMidName = _data["firstMidName"];
+            this.enrollmentDate = _data["enrollmentDate"] ? new Date(_data["enrollmentDate"].toString()) : undefined as any;
+            this.enrollmentsCount = _data["enrollmentsCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesStudentsStudentlistStudentItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesStudentsStudentlistStudentItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["studentId"] = this.studentId;
+        data["lastName"] = this.lastName;
+        data["firstMidName"] = this.firstMidName;
+        data["enrollmentDate"] = this.enrollmentDate ? this.enrollmentDate.toISOString() : undefined as any;
+        data["enrollmentsCount"] = this.enrollmentsCount;
+        return data;
+    }
+}
+
+/** Student item for the grid */
+export interface IContosouniversityWebformsPagesStudentsStudentlistStudentItem {
+    /** Student ID */
+    studentId?: number;
+    /** Student last name */
+    lastName?: string;
+    /** Student first and middle name */
+    firstMidName?: string;
+    /** Student enrollment date */
+    enrollmentDate?: Date;
+    /** Number of enrollments */
+    enrollmentsCount?: number;
+
+    [key: string]: any;
+}
+
+/** Envelope for paged grid results */
+export class PageContosouniversityWebformsPagesStudentsStudentlistPage implements IPageContosouniversityWebformsPagesStudentsStudentlistPage {
+    /** List of students */
+    items?: ContosouniversityWebformsPagesStudentsStudentlistStudentItem[];
+    /** Total number of students */
+    totalCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IPageContosouniversityWebformsPagesStudentsStudentlistPage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ContosouniversityWebformsPagesStudentsStudentlistStudentItem.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PageContosouniversityWebformsPagesStudentsStudentlistPage {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageContosouniversityWebformsPagesStudentsStudentlistPage();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+/** Envelope for paged grid results */
+export interface IPageContosouniversityWebformsPagesStudentsStudentlistPage {
+    /** List of students */
+    items?: ContosouniversityWebformsPagesStudentsStudentlistStudentItem[];
+    /** Total number of students */
+    totalCount?: number;
+
+    [key: string]: any;
+}
+
+/** Result of deleting a student from the grid. */
+export class ContosouniversityWebformsPagesStudentsStudentlistDeleteResult implements IContosouniversityWebformsPagesStudentsStudentlistDeleteResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** Error message if delete failed */
+    errorMessage?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesStudentsStudentlistDeleteResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.errorMessage = _data["errorMessage"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesStudentsStudentlistDeleteResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesStudentsStudentlistDeleteResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["errorMessage"] = this.errorMessage;
+        return data;
+    }
+}
+
+/** Result of deleting a student from the grid. */
+export interface IContosouniversityWebformsPagesStudentsStudentlistDeleteResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** Error message if delete failed */
+    errorMessage?: string;
+
+    [key: string]: any;
 }
 
 /** View model for the Departments grid page. */
