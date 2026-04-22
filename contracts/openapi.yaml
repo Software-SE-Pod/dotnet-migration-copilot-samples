@@ -40,3 +40,64 @@ components:
           type: string
         instance:
           type: string
+
+    ContosouniversityWebformsPagesCoursesCourseeditViewModel:
+      description: View model for the Course Edit page.
+      type: object
+      properties:
+        courseId:
+          type: integer
+          description: Course number (1-9999)
+        title:
+          type: string
+          description: Course title
+        credits:
+          type: integer
+          description: Number of credits (0-5)
+        departmentId:
+          type: integer
+          description: Department ID
+        departmentOptions:
+          type: array
+          description: List of available departments
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption'
+
+    ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption:
+      description: Department option for dropdown
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Department ID
+        name:
+          type: string
+          description: Department name
+
+    ContosouniversityWebformsPagesCoursesCourseeditSubmitRequest:
+      description: Request to submit the Course Edit form.
+      type: object
+      properties:
+        courseId:
+          type: integer
+          description: Course number (1-9999)
+        title:
+          type: string
+          description: Course title
+        credits:
+          type: integer
+          description: Number of credits (0-5)
+        departmentId:
+          type: integer
+          description: Department ID
+
+    ContosouniversityWebformsPagesCoursesCourseeditSubmitResult:
+      description: Result of submitting the Course Edit form.
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded
+        redirectUrl:
+          type: string
+          description: URL to redirect to after save

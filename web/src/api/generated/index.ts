@@ -168,6 +168,276 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
+/** View model for the Course Edit page. */
+export class ContosouniversityWebformsPagesCoursesCourseeditViewModel implements IContosouniversityWebformsPagesCoursesCourseeditViewModel {
+    /** Course number (1-9999) */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+    /** Number of credits (0-5) */
+    credits?: number;
+    /** Department ID */
+    departmentId?: number;
+    /** List of available departments */
+    departmentOptions?: ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption[];
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourseeditViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.credits = _data["credits"];
+            this.departmentId = _data["departmentId"];
+            if (Array.isArray(_data["departmentOptions"])) {
+                this.departmentOptions = [] as any;
+                for (let item of _data["departmentOptions"])
+                    this.departmentOptions!.push(ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourseeditViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourseeditViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["credits"] = this.credits;
+        data["departmentId"] = this.departmentId;
+        if (Array.isArray(this.departmentOptions)) {
+            data["departmentOptions"] = [];
+            for (let item of this.departmentOptions)
+                data["departmentOptions"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+/** View model for the Course Edit page. */
+export interface IContosouniversityWebformsPagesCoursesCourseeditViewModel {
+    /** Course number (1-9999) */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+    /** Number of credits (0-5) */
+    credits?: number;
+    /** Department ID */
+    departmentId?: number;
+    /** List of available departments */
+    departmentOptions?: ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption[];
+
+    [key: string]: any;
+}
+
+/** Department option for dropdown */
+export class ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption implements IContosouniversityWebformsPagesCoursesCourseeditDepartmentOption {
+    /** Department ID */
+    id?: number;
+    /** Department name */
+    name?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourseeditDepartmentOption) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourseeditDepartmentOption();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** Department option for dropdown */
+export interface IContosouniversityWebformsPagesCoursesCourseeditDepartmentOption {
+    /** Department ID */
+    id?: number;
+    /** Department name */
+    name?: string;
+
+    [key: string]: any;
+}
+
+/** Request to submit the Course Edit form. */
+export class ContosouniversityWebformsPagesCoursesCourseeditSubmitRequest implements IContosouniversityWebformsPagesCoursesCourseeditSubmitRequest {
+    /** Course number (1-9999) */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+    /** Number of credits (0-5) */
+    credits?: number;
+    /** Department ID */
+    departmentId?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourseeditSubmitRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+            this.credits = _data["credits"];
+            this.departmentId = _data["departmentId"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourseeditSubmitRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourseeditSubmitRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        data["credits"] = this.credits;
+        data["departmentId"] = this.departmentId;
+        return data;
+    }
+}
+
+/** Request to submit the Course Edit form. */
+export interface IContosouniversityWebformsPagesCoursesCourseeditSubmitRequest {
+    /** Course number (1-9999) */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+    /** Number of credits (0-5) */
+    credits?: number;
+    /** Department ID */
+    departmentId?: number;
+
+    [key: string]: any;
+}
+
+/** Result of submitting the Course Edit form. */
+export class ContosouniversityWebformsPagesCoursesCourseeditSubmitResult implements IContosouniversityWebformsPagesCoursesCourseeditSubmitResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** URL to redirect to after save */
+    redirectUrl?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesCoursesCourseeditSubmitResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.redirectUrl = _data["redirectUrl"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesCoursesCourseeditSubmitResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesCoursesCourseeditSubmitResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["redirectUrl"] = this.redirectUrl;
+        return data;
+    }
+}
+
+/** Result of submitting the Course Edit form. */
+export interface IContosouniversityWebformsPagesCoursesCourseeditSubmitResult {
+    /** Whether the operation succeeded */
+    success?: boolean;
+    /** URL to redirect to after save */
+    redirectUrl?: string;
+
+    [key: string]: any;
+}
+
 export class ApiException extends Error {
     override message: string;
     status: number;
