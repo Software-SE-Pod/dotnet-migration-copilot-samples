@@ -129,6 +129,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+
+  /api/contosouniversity-webforms-pages-instructors-instructoredit:
+    get:
+      operationId: getContosouniversityWebformsPagesInstructorsInstructoredit
+      summary: Get Instructor Edit page view model
+      tags: [contosouniversity-webforms-pages-instructors-instructoredit]
+      x-page-id: contosouniversity-webforms-pages-instructors-instructoredit
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: Instructor ID (for edit)
+      responses:
+        "200":
+          description: Instructor Edit page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructoreditViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    post:
+      operationId: submitContosouniversityWebformsPagesInstructorsInstructoredit
+      summary: Submit Instructor Edit form
+      tags: [contosouniversity-webforms-pages-instructors-instructoredit]
+      x-page-id: contosouniversity-webforms-pages-instructors-instructoredit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest'
+      responses:
+        "200":
+          description: Result of submitting the Instructor Edit form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
     HealthViewModel:
@@ -137,6 +199,86 @@ components:
         status:
           type: string
           example: OK
+
+    ContosouniversityWebformsPagesInstructorsInstructoreditViewModel:
+      description: View model for the Instructor Edit page.
+      type: object
+      properties:
+        instructorId:
+          type: integer
+          description: Instructor ID (null for new)
+        lastName:
+          type: string
+          description: Instructor last name
+        firstName:
+          type: string
+          description: Instructor first name
+        hireDate:
+          type: string
+          format: date-time
+          description: Instructor hire date
+        officeLocation:
+          type: string
+          description: Office location
+        courseOptions:
+          type: array
+          description: List of available courses
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption'
+        assignedCourseIds:
+          type: array
+          description: List of assigned course IDs
+          items:
+            type: integer
+
+    ContosouniversityWebformsPagesInstructorsInstructoreditCourseOption:
+      description: Course option for checkbox list
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Course ID
+        title:
+          type: string
+          description: Course title
+
+    ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest:
+      description: Request to submit the Instructor Edit form.
+      type: object
+      properties:
+        instructorId:
+          type: integer
+          description: Instructor ID (null for new)
+        lastName:
+          type: string
+          description: Instructor last name
+        firstName:
+          type: string
+          description: Instructor first name
+        hireDate:
+          type: string
+          format: date-time
+          description: Instructor hire date
+        officeLocation:
+          type: string
+          description: Office location
+        assignedCourseIds:
+          type: array
+          description: List of assigned course IDs
+          items:
+            type: integer
+
+    ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult:
+      description: Result of submitting the Instructor Edit form.
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded
+        redirectUrl:
+          type: string
+          description: URL to redirect to after save
+
     ProblemDetails:
       type: object
       properties:
