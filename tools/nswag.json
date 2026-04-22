@@ -1,17 +1,2 @@
-{
-  "swaggerGenerator": {
-    "fromSwagger": {
-      "url": "../contracts/openapi.yaml"
-    }
-  },
-  "codeGenerators": {
-    "openApiToCSharpClient": {
-      "className": "ApiClient",
-      "namespace": "ApiContracts.Generated",
-      "output": "../dotnet/ApiContracts/Generated/ApiClient.cs"
-    },
-    "openApiToTypeScriptClient": {
-      "output": "../web/src/api/generated/api-client.ts"
-    }
-  }
-}
+{\n  \
+runtime\: \Net80\,\n  \defaultVariables\: {},\n  \documentGenerator\: {\n    \fromDocument\: \contracts/openapi.yaml\,\n    \output\: [\n      { \output\: \dotnet/ApiContracts/Generated\, \type\: \csharp\ },\n      { \output\: \web/src/api/generated\, \type\: \typescript\ }\n    ]\n  }\n}
