@@ -148,9 +148,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Students/StudentEdit.aspx",
       "scenario": "form",
       "risk": "low",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "updatePanels=0 viewState=false session=false master=true evalBind=false codeBehindLines=72",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T10:37:57.245Z"
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentlist",
