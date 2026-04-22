@@ -12,7 +12,7 @@ builder.Services.AddReverseProxy()
     {
         new Yarp.ReverseProxy.Configuration.RouteConfig
         {
-            RouteId = "catchAll",
+            RouteId = "catchall",
             Match = new Yarp.ReverseProxy.Configuration.RouteMatch
             {
                 Path = "/{**catchAll}"
@@ -29,7 +29,7 @@ builder.Services.AddReverseProxy()
             {
                 ["webforms"] = new Yarp.ReverseProxy.Configuration.DestinationConfig
                 {
-                    Address = "http://localhost:8080/" // WebForms app assumed to run here
+                    Address = "http://localhost:8080/" // WebForms app URL
                 }
             }
         }
