@@ -16,10 +16,11 @@
       "notes": "PR #29 merged"
     },
     "data": {
-      "status": "in-progress",
+      "status": "done",
       "attempts": 1,
-      "lastUpdated": "2026-04-22T14:35:34.694Z",
-      "pr": 30
+      "lastUpdated": "2026-04-22T14:38:53.932Z",
+      "pr": 30,
+      "notes": "PR #30 merged"
     },
     "secrets": {
       "status": "pending",
