@@ -138,12 +138,19 @@ async function main(): Promise<void> {
         console.log(`[orchestrator] merge complete — continuing to next task.`);
         continue;
       }
-      // ci-pending, changes-requested, approved-not-mergeable, closed → stop for now
       if (result === "closed") {
         // PR was closed (e.g. conflict couldn't be rebased) — loop to recreate
         console.log(`[orchestrator] PR closed — will recreate on next iteration.`);
         continue;
       }
+      if (result === "changes-requested") {
+        // Critical issues found — close PR so next iteration recreates cleanly
+        console.log(`[orchestrator] PR #${activePr.number} had critical review findings — closing to recreate.`);
+        const { closePr } = await import("./github.js");
+        await closePr(activePr.number);
+        continue;
+      }
+      // ci-pending, approved-not-mergeable → stop for now
       console.log(`[orchestrator] PR #${activePr.number} not ready (${result}) — stopping, will resume next cron.`);
       return;
     }

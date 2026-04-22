@@ -3,7 +3,7 @@ import path from "node:path";
 import { runSession } from "./copilot.js";
 import {
   commitAll, createBranch, openPr, pushBranch,
-  prIsGreen, mergePr, getPrState, getPrDiff, getPrFiles,
+  prIsGreen, mergePr, closePr, getPrState, getPrDiff, getPrFiles,
   postPrComment, postPrReview,
   checkoutDefaultBranch, rebasePrBranch, prHasConflicts,
   type PrInfo,
@@ -56,8 +56,6 @@ const SECURITY_PATTERNS: Array<{ pattern: RegExp; message: string }> = [
   { pattern: /(?:password|secret|api[_-]?key|token)\s*[:=]\s*["'][^"']+["']/gi, message: "Possible hardcoded secret" },
   { pattern: /\bSqlCommand\b.*\+.*\bRequest\b/gi, message: "Potential SQL injection (string concat with user input)" },
   { pattern: /\beval\s*\(/gi, message: "Dangerous eval() usage" },
-  { pattern: /innerHTML\s*=/gi, message: "innerHTML assignment (potential XSS)" },
-  { pattern: /dangerouslySetInnerHTML/gi, message: "dangerouslySetInnerHTML usage (review for XSS)" },
   { pattern: /\bAllowAnonymous\b/gi, message: "AllowAnonymous attribute — verify intentional" },
   { pattern: /disable.*cors|cors.*\*/gi, message: "Wide-open CORS configuration" },
 ];
@@ -69,6 +67,8 @@ const MIGRATION_ANTIPATTERNS: Array<{ pattern: RegExp; message: string }> = [
   { pattern: /\bPage_Load\b/gi, message: "Page_Load handler — WebForms lifecycle" },
   { pattern: /\bIsPostBack\b/gi, message: "IsPostBack check — WebForms pattern" },
   { pattern: /System\.Web\b/gi, message: "System.Web namespace reference" },
+  { pattern: /innerHTML\s*=/gi, message: "innerHTML assignment — review for XSS" },
+  { pattern: /dangerouslySetInnerHTML/gi, message: "dangerouslySetInnerHTML usage — review for XSS" },
 ];
 
 function reviewDiff(diff: string, files: Array<{ filename: string; status: string; patch?: string }>): ReviewFinding[] {
@@ -192,11 +192,7 @@ export async function reviewAndMergePr(prNumber: number): Promise<ReviewOutcome>
     if (!rebased) {
       await postPrComment(prNumber, "⚠️ **Auto-rebase failed** — this PR has conflicts that require manual resolution.\n\nThe migration bot could not automatically rebase `" + prState.head + "` onto the default branch. Please resolve conflicts manually or close this PR so the bot can recreate it.");
       console.log(`[review] PR #${prNumber}: rebase failed — posted comment, will close PR.`);
-      // Close the conflicting PR so next run can recreate the work cleanly
-      const { octokit: getOctokit } = await import("./github.js");
-      const gh = getOctokit();
-      const [owner, repo] = process.env.GITHUB_REPOSITORY!.split("/") as [string, string];
-      await gh.pulls.update({ owner, repo, pull_number: prNumber, state: "closed" });
+      await closePr(prNumber);
       console.log(`[review] PR #${prNumber}: closed conflicting PR — next run will recreate.`);
       return "closed";
     }

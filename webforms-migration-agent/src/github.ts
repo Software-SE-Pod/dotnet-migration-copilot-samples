@@ -228,6 +228,14 @@ export async function mergePr(num: number): Promise<boolean> {
   }
 }
 
+export async function closePr(num: number): Promise<void> {
+  if (dry()) { console.log(`[dry-run] close PR #${num}`); return; }
+  const gh = octokit();
+  const { owner, repo } = repoSlug();
+  await gh.pulls.update({ owner, repo, pull_number: num, state: "closed" });
+  console.log(`[github] closed PR #${num}`);
+}
+
 /**
  * Rebase a PR branch onto the latest default branch to resolve conflicts.
  * Returns true if rebase succeeded and branch was force-pushed.
