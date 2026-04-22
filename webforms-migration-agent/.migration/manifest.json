@@ -9,8 +9,10 @@
       "notes": "PR #11 merged"
     },
     "identity": {
-      "status": "pending",
-      "attempts": 0
+      "status": "in-progress",
+      "attempts": 1,
+      "lastUpdated": "2026-04-22T09:59:23.696Z",
+      "pr": 12
     },
     "data": {
       "status": "pending",
@@ -142,7 +144,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 4,
+    "premiumRequestsUsed": 5,
     "premiumRequestsCap": 2000
   }
 }
