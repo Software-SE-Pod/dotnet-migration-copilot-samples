@@ -59,10 +59,8 @@ jobs:
 
       - name: Install Copilot CLI
         run: |
-          npm install -g @anthropic-ai/claude-cli@latest 2>$null
-          # Install GitHub Copilot CLI (required by @github/copilot-sdk)
-          npm install -g @githubnext/copilot-cli@latest 2>$null
-          # Verify copilot is available (non-fatal if not found)
+          # Install the GitHub Copilot CLI — required by @github/copilot-sdk
+          npm install -g @github/copilot@latest
           try { copilot --version } catch { Write-Warning "Copilot CLI not found — SDK sessions will fail but review/merge still works." }
 
       - name: Install NSwag console

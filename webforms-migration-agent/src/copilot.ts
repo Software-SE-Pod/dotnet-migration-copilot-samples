@@ -53,8 +53,12 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { CopilotClient, approveAll } = sdk as any;
+  const { CopilotClient } = sdk as any;
   if (!CopilotClient) throw new Error("@github/copilot-sdk missing CopilotClient export — update SDK.");
+
+  // Approve all permission requests so the session can read/write files and run shell commands.
+  // The SDK has no built-in "approveAll" — we provide our own handler.
+  const approveAllPermissions = () => ({ kind: "approved" as const });
 
   const token = process.env.COPILOT_GITHUB_TOKEN ?? process.env.GH_TOKEN;
   if (!token) throw new Error("COPILOT_GITHUB_TOKEN or GH_TOKEN required for Copilot SDK.");
@@ -93,7 +97,7 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
 
     const session = await client.createSession({
       model: "gpt-4.1",
-      onPermissionRequest: approveAll,
+      onPermissionRequest: approveAllPermissions,
       workingDirectory: input.cwd,
       ...(mcpServers ? { mcpServers } : {}),
     });
