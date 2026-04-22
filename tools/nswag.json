@@ -1,18 +1,17 @@
 {
   "runtime": "Net80",
-  "defaultVariables": {},
-  "swaggerGenerators": {
-    "openapi": {
-      "fromDocument": "../contracts/openapi.yaml"
+  "documentGenerator": {
+    "fromSwagger": {
+      "url": "../contracts/openapi.yaml"
     }
   },
   "codeGenerators": {
-    "openApiToCSharpClient": {
+    "swaggerToCSharpClient": {
       "className": "ApiContractsClient",
       "namespace": "ApiContracts.Generated",
       "output": "../dotnet/ApiContracts/Generated/ApiContracts.cs"
     },
-    "openApiToTypeScriptClient": {
+    "swaggerToTypeScriptClient": {
       "output": "../web/src/api/generated/index.ts"
     }
   }
