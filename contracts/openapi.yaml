@@ -161,6 +161,70 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+
+  /api/contosouniversity-webforms-pages-students-studentedit:
+    get:
+      operationId: getContosouniversityWebformsPagesStudentsStudentedit
+      summary: Get Student Edit page view model
+      tags: [contosouniversity-webforms-pages-students-studentedit]
+      x-page-id: contosouniversity-webforms-pages-students-studentedit
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: Student ID (for edit)
+      responses:
+        "200":
+          description: Student Edit page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudenteditViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /api/contosouniversity-webforms-pages-students-studentedit/submit:
+    post:
+      operationId: submitContosouniversityWebformsPagesStudentsStudentedit
+      summary: Submit Student Edit form
+      tags: [contosouniversity-webforms-pages-students-studentedit]
+      x-page-id: contosouniversity-webforms-pages-students-studentedit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudenteditSubmitRequest'
+      responses:
+        "200":
+          description: Result of submitting the Student Edit form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesStudentsStudenteditSubmitResult'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
     post:
       operationId: submitContosouniversityWebformsPagesDepartmentsDepartmentedit
       summary: Submit Department Edit form
@@ -742,3 +806,53 @@ components:
         concurrencyError:
           type: boolean
           description: True if there was a concurrency conflict
+
+    ContosouniversityWebformsPagesStudentsStudenteditViewModel:
+      description: View model for the Student Edit page.
+      type: object
+      properties:
+        studentId:
+          type: integer
+          description: Student ID (null for new)
+        lastName:
+          type: string
+          description: Student last name
+        firstName:
+          type: string
+          description: Student first name
+        enrollmentDate:
+          type: string
+          format: date-time
+          description: Student enrollment date
+
+    ContosouniversityWebformsPagesStudentsStudenteditSubmitRequest:
+      description: Request to submit the Student Edit form.
+      type: object
+      properties:
+        studentId:
+          type: integer
+          description: Student ID (null for new)
+        lastName:
+          type: string
+          description: Student last name
+        firstName:
+          type: string
+          description: Student first name
+        enrollmentDate:
+          type: string
+          format: date-time
+          description: Student enrollment date
+
+    ContosouniversityWebformsPagesStudentsStudenteditSubmitResult:
+      description: Result of submitting the Student Edit form.
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation succeeded
+        redirectUrl:
+          type: string
+          description: URL to redirect to after save
+        errorMessage:
+          type: string
+          description: Error message if save failed
