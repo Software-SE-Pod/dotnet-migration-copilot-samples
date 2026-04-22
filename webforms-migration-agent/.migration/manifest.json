@@ -16,8 +16,10 @@
       "notes": "PR #29 merged"
     },
     "data": {
-      "status": "pending",
-      "attempts": 0
+      "status": "in-progress",
+      "attempts": 1,
+      "lastUpdated": "2026-04-22T14:35:34.694Z",
+      "pr": 30
     },
     "secrets": {
       "status": "pending",
@@ -144,7 +146,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 2,
+    "premiumRequestsUsed": 3,
     "premiumRequestsCap": 2000
   }
 }
