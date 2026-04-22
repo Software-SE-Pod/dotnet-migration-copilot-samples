@@ -3,9 +3,9 @@
   "bootstrap": {
     "solution": {
       "status": "in-progress",
-      "attempts": 3,
-      "lastUpdated": "2026-04-22T09:41:28.743Z",
-      "pr": 10
+      "attempts": 4,
+      "lastUpdated": "2026-04-22T09:55:44.367Z",
+      "pr": 11
     },
     "identity": {
       "status": "pending",
@@ -141,7 +141,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 3,
+    "premiumRequestsUsed": 4,
     "premiumRequestsCap": 2000
   }
 }
