@@ -63,7 +63,18 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
   const token = process.env.COPILOT_GITHUB_TOKEN ?? process.env.GH_TOKEN;
   if (!token) throw new Error("COPILOT_GITHUB_TOKEN or GH_TOKEN required for Copilot SDK.");
 
-  const fullPrompt = [input.prompt, ...(input.skills ?? [])].join("\n\n---\n\n");
+  const executionDirective = [
+    "IMPORTANT: You are an autonomous coding agent. Do NOT just plan or summarize.",
+    "You MUST immediately implement all changes by writing files and running commands.",
+    "Do NOT ask questions. Do NOT wait for confirmation. Execute everything NOW.",
+    "Use your tools to create/edit files, run shell commands, and verify the build.",
+    "When done, ensure all changes are saved to disk in the working directory.",
+    "",
+    "---",
+    "",
+  ].join("\n");
+
+  const fullPrompt = [executionDirective, input.prompt, ...(input.skills ?? [])].join("\n\n---\n\n");
   const started = Date.now();
   const timeoutMs = (input.timeoutMinutes ?? 60) * 60_000;
 
