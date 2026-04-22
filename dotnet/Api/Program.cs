@@ -1,9 +1,30 @@
+using Azure.Identity;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Azure Key Vault integration
+if (!builder.Environment.IsDevelopment())
+{
+    var keyVaultName = builder.Configuration["KeyVaultName"];
+    if (!string.IsNullOrEmpty(keyVaultName))
+    {
+        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+        builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+    }
+}
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton(provider => {
+    var keyVaultName = builder.Configuration["KeyVaultName"];
+    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+    return new Azure.Security.KeyVault.Secrets.SecretClient(keyVaultUri, new Azure.Identity.DefaultAzureCredential());
+});
+builder.Services.AddHealthChecks().AddCheck<SecretsHealthCheck>("secrets");
 
 var app = builder.Build();
 
@@ -36,6 +57,7 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+app.MapHealthChecks("/health/secrets");
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
