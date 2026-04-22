@@ -51,9 +51,10 @@
       "scenario": "dashboard",
       "risk": "medium",
       "attempts": 1,
-      "notes": "",
-      "status": "contract-open",
-      "lastUpdated": "2026-04-22T15:56:17.665Z"
+      "notes": "PR #41 merged",
+      "status": "done",
+      "lastUpdated": "2026-04-22T15:59:58.581Z",
+      "contractPr": 41
     },
     {
       "id": "contosouniversity-webforms-pages-admin-login",
