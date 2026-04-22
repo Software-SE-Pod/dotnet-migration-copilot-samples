@@ -94,9 +94,9 @@
       "scenario": "dashboard",
       "risk": "medium",
       "attempts": 1,
-      "notes": "",
-      "status": "contract-open",
-      "lastUpdated": "2026-04-22T16:05:37.087Z",
+      "notes": "PR #42 merged",
+      "status": "done",
+      "lastUpdated": "2026-04-22T16:08:54.270Z",
       "contractPr": 42
     },
     {
