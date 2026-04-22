@@ -63,6 +63,10 @@ export async function createBranch(name: string, base?: string): Promise<void> {
   const b = base ?? await getDefaultBranch();
   if (dry()) { console.log(`[dry-run] git checkout -b ${name} ${b}`); return; }
   sh(`git fetch origin ${b}`);
+  // Clean untracked files and reset to avoid conflicts from prior iterations
+  sh(`git checkout ${b}`);
+  sh(`git reset --hard origin/${b}`);
+  sh(`git clean -fd`);
   sh(`git checkout -B ${name} origin/${b}`);
 }
 
