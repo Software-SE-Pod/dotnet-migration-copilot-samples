@@ -354,6 +354,363 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult>(null as any);
     }
+
+    /**
+     * Get Instructor List page view model
+     * @param page (optional) Page index (zero-based)
+     * @param pageSize (optional) Page size
+     * @param sort (optional) Sort expression (e.g. "LastName:asc")
+     * @return Instructor List page view model
+     */
+    getContosouniversityWebformsPagesInstructorsInstructorlist(page: number | undefined, pageSize: number | undefined, sort: string | undefined): Promise<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-instructors-instructorlist?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "sort=" + encodeURIComponent("" + sort) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesInstructorsInstructorlist(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesInstructorsInstructorlist(response: Response): Promise<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesInstructorsInstructorlistViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel>(null as any);
+    }
+}
+
+/** View model for the Instructor List page. */
+export class ContosouniversityWebformsPagesInstructorsInstructorlistViewModel implements IContosouniversityWebformsPagesInstructorsInstructorlistViewModel {
+    /** List of instructors for the grid */
+    instructors?: ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem[];
+    /** Current page index (zero-based) */
+    page?: number;
+    /** Page size */
+    pageSize?: number;
+    /** Total number of instructors */
+    totalCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructorlistViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["instructors"])) {
+                this.instructors = [] as any;
+                for (let item of _data["instructors"])
+                    this.instructors!.push(ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem.fromJS(item));
+            }
+            this.page = _data["page"];
+            this.pageSize = _data["pageSize"];
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructorlistViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructorlistViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.instructors)) {
+            data["instructors"] = [];
+            for (let item of this.instructors)
+                data["instructors"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["page"] = this.page;
+        data["pageSize"] = this.pageSize;
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+/** View model for the Instructor List page. */
+export interface IContosouniversityWebformsPagesInstructorsInstructorlistViewModel {
+    /** List of instructors for the grid */
+    instructors?: ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem[];
+    /** Current page index (zero-based) */
+    page?: number;
+    /** Page size */
+    pageSize?: number;
+    /** Total number of instructors */
+    totalCount?: number;
+
+    [key: string]: any;
+}
+
+/** Instructor item for the grid */
+export class ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem implements IContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem {
+    /** Instructor ID */
+    instructorId?: number;
+    /** Instructor last name */
+    lastName?: string;
+    /** Instructor first name */
+    firstName?: string;
+    /** Instructor hire date */
+    hireDate?: Date;
+    /** Office location */
+    officeLocation?: string;
+    /** List of courses taught by the instructor */
+    courses?: ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem[];
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.instructorId = _data["instructorId"];
+            this.lastName = _data["lastName"];
+            this.firstName = _data["firstName"];
+            this.hireDate = _data["hireDate"] ? new Date(_data["hireDate"].toString()) : undefined as any;
+            this.officeLocation = _data["officeLocation"];
+            if (Array.isArray(_data["courses"])) {
+                this.courses = [] as any;
+                for (let item of _data["courses"])
+                    this.courses!.push(ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["instructorId"] = this.instructorId;
+        data["lastName"] = this.lastName;
+        data["firstName"] = this.firstName;
+        data["hireDate"] = this.hireDate ? this.hireDate.toISOString() : undefined as any;
+        data["officeLocation"] = this.officeLocation;
+        if (Array.isArray(this.courses)) {
+            data["courses"] = [];
+            for (let item of this.courses)
+                data["courses"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+/** Instructor item for the grid */
+export interface IContosouniversityWebformsPagesInstructorsInstructorlistInstructorItem {
+    /** Instructor ID */
+    instructorId?: number;
+    /** Instructor last name */
+    lastName?: string;
+    /** Instructor first name */
+    firstName?: string;
+    /** Instructor hire date */
+    hireDate?: Date;
+    /** Office location */
+    officeLocation?: string;
+    /** List of courses taught by the instructor */
+    courses?: ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem[];
+
+    [key: string]: any;
+}
+
+/** Course item for instructor */
+export class ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem implements IContosouniversityWebformsPagesInstructorsInstructorlistCourseItem {
+    /** Course ID */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructorlistCourseItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.courseId = _data["courseId"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructorlistCourseItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["courseId"] = this.courseId;
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+/** Course item for instructor */
+export interface IContosouniversityWebformsPagesInstructorsInstructorlistCourseItem {
+    /** Course ID */
+    courseId?: number;
+    /** Course title */
+    title?: string;
+
+    [key: string]: any;
+}
+
+/** Student item for selected instructor */
+export class ContosouniversityWebformsPagesInstructorsInstructorlistStudentItem implements IContosouniversityWebformsPagesInstructorsInstructorlistStudentItem {
+    /** Student ID */
+    studentId?: number;
+    /** Student full name */
+    fullName?: string;
+    /** Student grade */
+    grade?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesInstructorsInstructorlistStudentItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.studentId = _data["studentId"];
+            this.fullName = _data["fullName"];
+            this.grade = _data["grade"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesInstructorsInstructorlistStudentItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesInstructorsInstructorlistStudentItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["studentId"] = this.studentId;
+        data["fullName"] = this.fullName;
+        data["grade"] = this.grade;
+        return data;
+    }
+}
+
+/** Student item for selected instructor */
+export interface IContosouniversityWebformsPagesInstructorsInstructorlistStudentItem {
+    /** Student ID */
+    studentId?: number;
+    /** Student full name */
+    fullName?: string;
+    /** Student grade */
+    grade?: string;
+
+    [key: string]: any;
 }
 
 export class HealthViewModel implements IHealthViewModel {

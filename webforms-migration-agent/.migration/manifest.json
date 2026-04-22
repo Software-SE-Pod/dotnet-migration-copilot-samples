@@ -131,9 +131,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Instructors/InstructorList.aspx",
       "scenario": "grid",
       "risk": "low",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T15:37:49.699Z"
     },
     {
       "id": "contosouniversity-webforms-pages-reports-enrollmentstats",
