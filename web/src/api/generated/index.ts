@@ -18,6 +18,125 @@ export class Client {
     }
 
     /**
+     * Get Departments grid page view model
+     * @return Departments grid page view model
+     */
+    getContosouniversityWebformsPagesDepartmentsDepartmentlist(): Promise<ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-departments-departmentlist";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesDepartmentsDepartmentlist(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesDepartmentsDepartmentlist(response: Response): Promise<ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel>(null as any);
+    }
+
+    /**
+     * List departments for grid with paging and sorting
+     * @param page (optional) Page index (zero-based)
+     * @param pageSize (optional) Page size
+     * @param sort (optional) Sort expression (e.g. "Name:asc")
+     * @return Paged list of departments
+     */
+    listContosouniversityWebformsPagesDepartmentsDepartmentlistItems(page: number | undefined, pageSize: number | undefined, sort: string | undefined): Promise<PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-departments-departmentlist/items?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "sort=" + encodeURIComponent("" + sort) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processListContosouniversityWebformsPagesDepartmentsDepartmentlistItems(_response);
+        });
+    }
+
+    protected processListContosouniversityWebformsPagesDepartmentsDepartmentlistItems(response: Response): Promise<PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage>(null as any);
+    }
+
+    /**
      * Get Default page dashboard stats
      * @return Default dashboard stats view model
      */
@@ -770,6 +889,214 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel>(null as any);
     }
+}
+
+/** View model for the Departments grid page. */
+export class ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel implements IContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel {
+    /** List of departments */
+    items?: ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem[];
+    /** Total number of departments (for pagination) */
+    totalCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+/** View model for the Departments grid page. */
+export interface IContosouniversityWebformsPagesDepartmentsDepartmentlistViewModel {
+    /** List of departments */
+    items?: ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem[];
+    /** Total number of departments (for pagination) */
+    totalCount?: number;
+
+    [key: string]: any;
+}
+
+/** Department item for the grid */
+export class ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem implements IContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem {
+    /** Department ID */
+    departmentId?: number;
+    /** Department name */
+    name?: string;
+    /** Department budget */
+    budget?: string;
+    /** Department start date */
+    startDate?: Date;
+    /** Administrator full name */
+    administrator?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.departmentId = _data["departmentId"];
+            this.name = _data["name"];
+            this.budget = _data["budget"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
+            this.administrator = _data["administrator"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["departmentId"] = this.departmentId;
+        data["name"] = this.name;
+        data["budget"] = this.budget;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : undefined as any;
+        data["administrator"] = this.administrator;
+        return data;
+    }
+}
+
+/** Department item for the grid */
+export interface IContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem {
+    /** Department ID */
+    departmentId?: number;
+    /** Department name */
+    name?: string;
+    /** Department budget */
+    budget?: string;
+    /** Department start date */
+    startDate?: Date;
+    /** Administrator full name */
+    administrator?: string;
+
+    [key: string]: any;
+}
+
+/** Envelope for paged grid results */
+export class PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage implements IPageContosouniversityWebformsPagesDepartmentsDepartmentlistPage {
+    /** List of departments */
+    items?: ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem[];
+    /** Total number of departments */
+    totalCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IPageContosouniversityWebformsPagesDepartmentsDepartmentlistPage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageContosouniversityWebformsPagesDepartmentsDepartmentlistPage();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+/** Envelope for paged grid results */
+export interface IPageContosouniversityWebformsPagesDepartmentsDepartmentlistPage {
+    /** List of departments */
+    items?: ContosouniversityWebformsPagesDepartmentsDepartmentlistDepartmentItem[];
+    /** Total number of departments */
+    totalCount?: number;
+
+    [key: string]: any;
 }
 
 /** View model for the Default dashboard page. */
