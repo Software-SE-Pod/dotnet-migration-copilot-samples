@@ -18,6 +18,132 @@ export class Client {
     }
 
     /**
+     * Get Admin Dashboard page view model
+     * @return Admin Dashboard page view model
+     */
+    getContosouniversityWebformsPagesAdminDashboard(): Promise<ContosouniversityWebformsPagesAdminDashboardViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-admin-dashboard";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesAdminDashboard(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesAdminDashboard(response: Response): Promise<ContosouniversityWebformsPagesAdminDashboardViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesAdminDashboardViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesAdminDashboardViewModel>(null as any);
+    }
+
+    /**
+     * List recent enrollments for dashboard grid
+     * @param page (optional) Page index (zero-based)
+     * @param pageSize (optional) Page size
+     * @param sort (optional) Sort expression (e.g. "Student:asc")
+     * @return List of recent enrollments
+     */
+    listContosouniversityWebformsPagesAdminDashboardItems(page: number | undefined, pageSize: number | undefined, sort: string | undefined): Promise<ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem[]> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-admin-dashboard/items?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (sort === null)
+            throw new globalThis.Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "sort=" + encodeURIComponent("" + sort) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processListContosouniversityWebformsPagesAdminDashboardItems(_response);
+        });
+    }
+
+    protected processListContosouniversityWebformsPagesAdminDashboardItems(response: Response): Promise<ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem[]>(null as any);
+    }
+
+    /**
      * Get Enrollment Stats page view model
      * @param departmentId (optional) Filter by department ID
      * @return Enrollment Stats page view model
@@ -592,6 +718,184 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel>(null as any);
     }
+}
+
+/** View model for the Admin Dashboard page. */
+export class ContosouniversityWebformsPagesAdminDashboardViewModel implements IContosouniversityWebformsPagesAdminDashboardViewModel {
+    /** Total number of students */
+    totalStudents?: number;
+    /** Total number of courses */
+    totalCourses?: number;
+    /** Total number of departments */
+    totalDepartments?: number;
+    /** Total number of instructors */
+    totalInstructors?: number;
+    /** Total number of enrollments */
+    totalEnrollments?: number;
+    /** List of recent enrollments */
+    recentEnrollments?: ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem[];
+    /** Number of times the user has visited the dashboard (from session) */
+    dashboardVisits?: number;
+    /** ASP.NET session ID */
+    sessionId?: string;
+    /** Server machine name */
+    server?: string;
+    /** .NET runtime version */
+    dotnetVersion?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesAdminDashboardViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.totalStudents = _data["totalStudents"];
+            this.totalCourses = _data["totalCourses"];
+            this.totalDepartments = _data["totalDepartments"];
+            this.totalInstructors = _data["totalInstructors"];
+            this.totalEnrollments = _data["totalEnrollments"];
+            if (Array.isArray(_data["recentEnrollments"])) {
+                this.recentEnrollments = [] as any;
+                for (let item of _data["recentEnrollments"])
+                    this.recentEnrollments!.push(ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem.fromJS(item));
+            }
+            this.dashboardVisits = _data["dashboardVisits"];
+            this.sessionId = _data["sessionId"];
+            this.server = _data["server"];
+            this.dotnetVersion = _data["dotnetVersion"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesAdminDashboardViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesAdminDashboardViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["totalStudents"] = this.totalStudents;
+        data["totalCourses"] = this.totalCourses;
+        data["totalDepartments"] = this.totalDepartments;
+        data["totalInstructors"] = this.totalInstructors;
+        data["totalEnrollments"] = this.totalEnrollments;
+        if (Array.isArray(this.recentEnrollments)) {
+            data["recentEnrollments"] = [];
+            for (let item of this.recentEnrollments)
+                data["recentEnrollments"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["dashboardVisits"] = this.dashboardVisits;
+        data["sessionId"] = this.sessionId;
+        data["server"] = this.server;
+        data["dotnetVersion"] = this.dotnetVersion;
+        return data;
+    }
+}
+
+/** View model for the Admin Dashboard page. */
+export interface IContosouniversityWebformsPagesAdminDashboardViewModel {
+    /** Total number of students */
+    totalStudents?: number;
+    /** Total number of courses */
+    totalCourses?: number;
+    /** Total number of departments */
+    totalDepartments?: number;
+    /** Total number of instructors */
+    totalInstructors?: number;
+    /** Total number of enrollments */
+    totalEnrollments?: number;
+    /** List of recent enrollments */
+    recentEnrollments?: ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem[];
+    /** Number of times the user has visited the dashboard (from session) */
+    dashboardVisits?: number;
+    /** ASP.NET session ID */
+    sessionId?: string;
+    /** Server machine name */
+    server?: string;
+    /** .NET runtime version */
+    dotnetVersion?: string;
+
+    [key: string]: any;
+}
+
+/** Recent enrollment item for the dashboard grid. */
+export class ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem implements IContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem {
+    /** Student full name */
+    studentFullName?: string;
+    /** Course title */
+    courseTitle?: string;
+    /** Grade */
+    grade?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.studentFullName = _data["studentFullName"];
+            this.courseTitle = _data["courseTitle"];
+            this.grade = _data["grade"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["studentFullName"] = this.studentFullName;
+        data["courseTitle"] = this.courseTitle;
+        data["grade"] = this.grade;
+        return data;
+    }
+}
+
+/** Recent enrollment item for the dashboard grid. */
+export interface IContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem {
+    /** Student full name */
+    studentFullName?: string;
+    /** Course title */
+    courseTitle?: string;
+    /** Grade */
+    grade?: string;
+
+    [key: string]: any;
 }
 
 /** View model for the Enrollment Stats page. */

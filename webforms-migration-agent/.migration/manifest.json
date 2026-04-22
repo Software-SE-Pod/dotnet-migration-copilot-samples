@@ -50,9 +50,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Admin/Dashboard.aspx",
       "scenario": "dashboard",
       "risk": "medium",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T15:56:17.665Z"
     },
     {
       "id": "contosouniversity-webforms-pages-admin-login",

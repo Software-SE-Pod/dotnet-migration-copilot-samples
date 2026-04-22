@@ -6,6 +6,74 @@ servers:
   - url: http://localhost:5000
   - url: http://localhost:5173
 paths:
+  /api/contosouniversity-webforms-pages-admin-dashboard:
+    get:
+      operationId: getContosouniversityWebformsPagesAdminDashboard
+      summary: Get Admin Dashboard page view model
+      tags: [contosouniversity-webforms-pages-admin-dashboard]
+      x-page-id: contosouniversity-webforms-pages-admin-dashboard
+      responses:
+        "200":
+          description: Admin Dashboard page view model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContosouniversityWebformsPagesAdminDashboardViewModel'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/contosouniversity-webforms-pages-admin-dashboard/items:
+    get:
+      operationId: listContosouniversityWebformsPagesAdminDashboardItems
+      summary: List recent enrollments for dashboard grid
+      tags: [contosouniversity-webforms-pages-admin-dashboard]
+      x-page-id: contosouniversity-webforms-pages-admin-dashboard
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page index (zero-based)
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: Page size
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Sort expression (e.g. "Student:asc")
+      responses:
+        "200":
+          description: List of recent enrollments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/contosouniversity-webforms-pages-reports-enrollmentstats:
     get:
       operationId: getContosouniversityWebformsPagesReportsEnrollmentstats
@@ -366,6 +434,56 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    ContosouniversityWebformsPagesAdminDashboardViewModel:
+      description: View model for the Admin Dashboard page.
+      type: object
+      properties:
+        totalStudents:
+          type: integer
+          description: Total number of students
+        totalCourses:
+          type: integer
+          description: Total number of courses
+        totalDepartments:
+          type: integer
+          description: Total number of departments
+        totalInstructors:
+          type: integer
+          description: Total number of instructors
+        totalEnrollments:
+          type: integer
+          description: Total number of enrollments
+        recentEnrollments:
+          type: array
+          description: List of recent enrollments
+          items:
+            $ref: '#/components/schemas/ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem'
+        dashboardVisits:
+          type: integer
+          description: Number of times the user has visited the dashboard (from session)
+        sessionId:
+          type: string
+          description: ASP.NET session ID
+        server:
+          type: string
+          description: Server machine name
+        dotnetVersion:
+          type: string
+          description: .NET runtime version
+    ContosouniversityWebformsPagesAdminDashboardRecentEnrollmentItem:
+      description: Recent enrollment item for the dashboard grid.
+      type: object
+      properties:
+        studentFullName:
+          type: string
+          description: Student full name
+        courseTitle:
+          type: string
+          description: Course title
+        grade:
+          type: string
+          description: Grade
+    
     ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel:
       description: View model for the Enrollment Stats page.
       type: object
