@@ -23,8 +23,10 @@
       "notes": "PR #13 merged"
     },
     "secrets": {
-      "status": "pending",
-      "attempts": 0
+      "status": "in-progress",
+      "attempts": 1,
+      "lastUpdated": "2026-04-22T10:06:28.924Z",
+      "pr": 14
     },
     "storage": {
       "status": "pending",
@@ -148,7 +150,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 6,
+    "premiumRequestsUsed": 7,
     "premiumRequestsCap": 2000
   }
 }
