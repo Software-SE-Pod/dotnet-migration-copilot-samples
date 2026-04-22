@@ -37,8 +37,10 @@
       "notes": "PR #32 merged"
     },
     "adapters": {
-      "status": "pending",
-      "attempts": 0
+      "status": "in-progress",
+      "attempts": 1,
+      "lastUpdated": "2026-04-22T15:13:34.689Z",
+      "pr": 33
     }
   },
   "pages": [
@@ -153,7 +155,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 5,
+    "premiumRequestsUsed": 6,
     "premiumRequestsCap": 2000
   }
 }

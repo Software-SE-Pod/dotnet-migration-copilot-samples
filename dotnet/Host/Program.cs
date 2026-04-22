@@ -1,5 +1,7 @@
 using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Microsoft.AspNetCore.SystemWebAdapters;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,15 @@ if (!builder.Environment.IsDevelopment())
     }
 }
 
+builder.Services.AddSystemWebAdapters();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration["SystemWebAdapters:DataProtection:KeyRingPath"]!));
+
 var app = builder.Build();
+
+app.UseSystemWebAdapters();
+app.UseRouting();
+app.UseAuthorization();
 
 app.MapGet("/", () => "Hello World!");
 
