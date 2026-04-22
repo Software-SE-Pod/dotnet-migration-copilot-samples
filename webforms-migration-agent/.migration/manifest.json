@@ -30,10 +30,11 @@
       "notes": "PR #14 merged"
     },
     "storage": {
-      "status": "in-progress",
+      "status": "done",
       "attempts": 1,
-      "lastUpdated": "2026-04-22T10:10:03.885Z",
-      "pr": 15
+      "lastUpdated": "2026-04-22T10:13:19.931Z",
+      "pr": 15,
+      "notes": "PR #15 merged"
     },
     "adapters": {
       "status": "pending",
