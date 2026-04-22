@@ -1,0 +1,21 @@
+# DepartmentEdit.aspx Analysis
+
+## Data In
+- Query string: id (departmentId)
+- Form fields: txtName, txtBudget, txtStartDate, ddlAdmin, hfRowVersion
+- No session keys used
+
+## Data Out
+- Renders department fields for edit or blank for new
+- Instructor dropdown (ddlAdmin)
+- Redirects to DepartmentList.aspx on save
+- Shows concurrency error if conflict
+
+## Side Effects
+- DB read/write: SchoolContext.Departments, SchoolContext.Instructors
+- No file I/O, email, or 3rd-party calls
+
+## Events
+- Page_Load (loads data, instructors)
+- btnSave_Click (handles save/insert, concurrency)
+
