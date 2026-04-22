@@ -73,6 +73,10 @@ export async function createBranch(name: string, base?: string): Promise<void> {
 export function commitAll(message: string): boolean {
   if (dry()) { console.log(`[dry-run] git commit -m "${message}"`); return true; }
   sh(`git add -A`);
+  // Remove workflow files — pushing them requires the 'workflows' token scope
+  // which GitHub App / PAT tokens typically lack
+  try { sh(`git reset HEAD -- .github/workflows`); } catch { /* nothing staged there */ }
+  try { sh(`git checkout -- .github/workflows`); } catch { /* nothing to restore */ }
   const status = sh(`git status --porcelain`);
   if (!status) return false;
   sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" commit -m ${JSON.stringify(message)}`);
