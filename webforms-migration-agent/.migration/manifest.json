@@ -93,9 +93,11 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Default.aspx",
       "scenario": "dashboard",
       "risk": "medium",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T16:05:37.087Z",
+      "contractPr": 42
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentedit",
@@ -172,7 +174,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 6,
+    "premiumRequestsUsed": 7,
     "premiumRequestsCap": 2000
   }
 }

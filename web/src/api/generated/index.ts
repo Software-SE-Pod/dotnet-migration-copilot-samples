@@ -18,6 +18,58 @@ export class Client {
     }
 
     /**
+     * Get Default page dashboard stats
+     * @return Default dashboard stats view model
+     */
+    getContosouniversityWebformsPagesDefault(): Promise<ContosouniversityWebformsPagesDefaultViewModel> {
+        let url_ = this.baseUrl + "/api/contosouniversity-webforms-pages-default";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetContosouniversityWebformsPagesDefault(_response);
+        });
+    }
+
+    protected processGetContosouniversityWebformsPagesDefault(response: Response): Promise<ContosouniversityWebformsPagesDefaultViewModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContosouniversityWebformsPagesDefaultViewModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal server error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ContosouniversityWebformsPagesDefaultViewModel>(null as any);
+    }
+
+    /**
      * Get Admin Dashboard page view model
      * @return Admin Dashboard page view model
      */
@@ -718,6 +770,70 @@ export class Client {
         }
         return Promise.resolve<ContosouniversityWebformsPagesInstructorsInstructorlistViewModel>(null as any);
     }
+}
+
+/** View model for the Default dashboard page. */
+export class ContosouniversityWebformsPagesDefaultViewModel implements IContosouniversityWebformsPagesDefaultViewModel {
+    /** Total number of students */
+    studentCount?: number;
+    /** Total number of courses */
+    courseCount?: number;
+    /** Total number of departments */
+    departmentCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IContosouniversityWebformsPagesDefaultViewModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.studentCount = _data["studentCount"];
+            this.courseCount = _data["courseCount"];
+            this.departmentCount = _data["departmentCount"];
+        }
+    }
+
+    static fromJS(data: any): ContosouniversityWebformsPagesDefaultViewModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContosouniversityWebformsPagesDefaultViewModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["studentCount"] = this.studentCount;
+        data["courseCount"] = this.courseCount;
+        data["departmentCount"] = this.departmentCount;
+        return data;
+    }
+}
+
+/** View model for the Default dashboard page. */
+export interface IContosouniversityWebformsPagesDefaultViewModel {
+    /** Total number of students */
+    studentCount?: number;
+    /** Total number of courses */
+    courseCount?: number;
+    /** Total number of departments */
+    departmentCount?: number;
+
+    [key: string]: any;
 }
 
 /** View model for the Admin Dashboard page. */
