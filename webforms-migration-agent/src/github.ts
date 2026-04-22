@@ -72,11 +72,19 @@ export async function createBranch(name: string, base?: string): Promise<void> {
 
 export function commitAll(message: string): boolean {
   if (dry()) { console.log(`[dry-run] git commit -m "${message}"`); return true; }
+  // Delete any .github/workflows files BEFORE staging — pushing them requires
+  // the 'workflows' token scope which GitHub App / PAT tokens typically lack.
+  // The SDK frequently generates build.yml / ci.yml files we must strip.
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const wfDir = path.join(process.cwd(), ".github", "workflows");
+    if (fs.existsSync(wfDir)) {
+      console.log(`[github] removing .github/workflows/ to avoid push rejection`);
+      fs.rmSync(wfDir, { recursive: true, force: true });
+    }
+  } catch (e) { console.warn(`[github] failed to remove workflows dir: ${e}`); }
   sh(`git add -A`);
-  // Remove workflow files — pushing them requires the 'workflows' token scope
-  // which GitHub App / PAT tokens typically lack
-  try { sh(`git reset HEAD -- .github/workflows`); } catch { /* nothing staged there */ }
-  try { sh(`git checkout -- .github/workflows`); } catch { /* nothing to restore */ }
   const status = sh(`git status --porcelain`);
   if (!status) return false;
   sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" commit -m ${JSON.stringify(message)}`);
@@ -97,6 +105,19 @@ export function pushBranch(name: string): void {
       sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" commit -m "chore: remove workflow files (requires workflows scope)" --allow-empty`);
     }
   } catch { /* no workflow changes or git error — proceed normally */ }
+  // Also nuke any untracked workflow files that might cause issues
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const wfDir = path.join(process.cwd(), ".github", "workflows");
+    if (fs.existsSync(wfDir)) {
+      fs.rmSync(wfDir, { recursive: true, force: true });
+      try {
+        sh(`git add -A`);
+        sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" commit -m "chore: remove lingering workflow files" --allow-empty`);
+      } catch { /* nothing to commit */ }
+    }
+  } catch { /* safe to ignore */ }
   sh(`git push -u origin ${name} --force-with-lease`);
 }
 
