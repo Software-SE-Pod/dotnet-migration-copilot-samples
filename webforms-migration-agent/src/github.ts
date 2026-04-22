@@ -249,14 +249,25 @@ export async function rebasePrBranch(headBranch: string): Promise<boolean> {
 }
 
 /**
- * Check if a PR has merge conflicts.
+ * Check if a PR has merge conflicts. Retries once if mergeable is null
+ * (GitHub hasn't computed it yet).
  */
 export async function prHasConflicts(num: number): Promise<boolean> {
   if (dry()) return false;
   const gh = octokit();
   const { owner, repo } = repoSlug();
-  const { data } = await gh.pulls.get({ owner, repo, pull_number: num });
-  return data.mergeable === false || data.mergeable_state === "dirty";
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data } = await gh.pulls.get({ owner, repo, pull_number: num });
+    if (data.mergeable === false || data.mergeable_state === "dirty") return true;
+    if (data.mergeable === true) return false;
+    // mergeable is null — GitHub is still computing. Wait and retry.
+    console.log(`[github] PR #${num}: mergeable=null, waiting 5s for GitHub to compute (attempt ${attempt + 1}/3)…`);
+    await new Promise(r => setTimeout(r, 5000));
+  }
+  // After retries, assume conflicts if we can't confirm
+  console.log(`[github] PR #${num}: mergeable still null after retries — assuming conflicts.`);
+  return true;
 }
 
 /** Fetch the unified diff for a PR. Returns the diff as a string. */
