@@ -230,6 +230,15 @@ export async function getPrDiff(num: number): Promise<string> {
   return data as unknown as string;
 }
 
+/** Fetch the list of files changed in a PR with patch content. */
+export async function getPrFiles(num: number): Promise<Array<{ filename: string; status: string; patch?: string }>> {
+  if (dry()) return [];
+  const gh = octokit();
+  const { owner, repo } = repoSlug();
+  const { data } = await gh.pulls.listFiles({ owner, repo, pull_number: num, per_page: 100 });
+  return data.map(f => ({ filename: f.filename, status: f.status ?? "unknown", patch: f.patch }));
+}
+
 /** Post a review comment on a PR. */
 export async function postPrReview(
   num: number,
@@ -244,4 +253,20 @@ export async function postPrReview(
   const { owner, repo } = repoSlug();
   await gh.pulls.createReview({ owner, repo, pull_number: num, body, event });
   console.log(`[github] posted ${event} review on PR #${num}`);
+}
+
+/** Post a regular issue comment on a PR (not a review). */
+export async function postPrComment(num: number, body: string): Promise<void> {
+  if (dry()) { console.log(`[dry-run] comment on PR #${num} (${body.length} chars)`); return; }
+  const gh = octokit();
+  const { owner, repo } = repoSlug();
+  await gh.issues.createComment({ owner, repo, issue_number: num, body });
+  console.log(`[github] posted comment on PR #${num}`);
+}
+
+/** Check if there are any open PRs from the migration bot. */
+export async function getActiveMigrationPr(): Promise<PrInfo | null> {
+  if (dry()) return null;
+  const prs = await listOpenPrs();
+  return prs.find(p => p.head.startsWith("migration/")) ?? null;
 }

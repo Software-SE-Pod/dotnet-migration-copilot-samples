@@ -5,8 +5,11 @@ import path from "node:path";
  * Thin wrapper over @github/copilot-sdk. Isolated so the orchestrator stays
  * readable and so the SDK surface can be swapped (e.g. BYOK) without ripple.
  *
- * Uses CopilotClient → start() → createSession() → sendAndWait() pattern
- * per the official SDK API (public preview, April 2026).
+ * Uses CopilotClient → start() → createSession({ mcpServers }) → sendAndWait()
+ * per the official SDK API (technical preview, 2026).
+ *
+ * The Copilot CLI must be installed and in PATH. The SDK spawns it as a
+ * subprocess in server mode and communicates via JSON-RPC over stdio.
  */
 
 export interface SessionInput {
@@ -20,17 +23,16 @@ export interface SessionInput {
   cwd: string;
   /** Name of the Git branch the session should work on (pre-checked-out). */
   branch: string;
-  /** Whether the session may use the network (default: true). */
-  allowNetwork?: boolean;
   /** Hard ceiling for this session, in minutes. */
   timeoutMinutes?: number;
+  /** Whether to attach the modernize-dotnet MCP server. */
+  useMcpModernize?: boolean;
 }
 
 export interface SessionResult {
   ok: boolean;
   summary: string;
   premiumRequests?: number;
-  /** Files changed by the session (from `git status --porcelain`, added by caller). */
   changedFiles?: string[];
   error?: string;
 }
@@ -43,7 +45,6 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
     return { ok: true, summary: "dry-run", premiumRequests: 0, changedFiles: [] };
   }
 
-  // Dynamic import keeps CI/dry-run working even if the SDK isn't installed yet.
   const sdk = await import("@github/copilot-sdk").catch(() => null);
   if (!sdk) {
     throw new Error(
@@ -62,23 +63,42 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
   const started = Date.now();
   const timeoutMs = (input.timeoutMinutes ?? 60) * 60_000;
 
-  const client = new CopilotClient({ githubToken: token });
+  const client = new CopilotClient({
+    githubToken: token,
+    cwd: input.cwd,
+  });
 
   try {
     await client.start();
 
+    // Build MCP server config if modernize-dotnet is requested.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mcpServers: Record<string, any> | undefined = input.useMcpModernize
+      ? {
+          Modernization: {
+            type: "local" as const,
+            command: "dnx",
+            args: [
+              "Microsoft.GitHubCopilot.Modernization.Mcp",
+              "--prerelease",
+              "--yes",
+              "--ignore-failed-sources",
+            ],
+            cwd: process.env.HOME ?? process.env.USERPROFILE ?? "~",
+            tools: ["*"],
+            env: { APPMOD_CALLER_TYPE: "copilot-sdk" },
+          },
+        }
+      : undefined;
+
     const session = await client.createSession({
       model: "gpt-4.1",
       onPermissionRequest: approveAll,
+      workingDirectory: input.cwd,
+      ...(mcpServers ? { mcpServers } : {}),
     });
 
-    // sendAndWait sends the prompt and blocks until the session goes idle.
-    const result = await Promise.race([
-      session.sendAndWait({ prompt: fullPrompt }, timeoutMs),
-      new Promise<never>((_, rej) =>
-        setTimeout(() => rej(new Error(`session ${input.id} exceeded ${input.timeoutMinutes}m`)), timeoutMs)
-      ),
-    ]);
+    const result = await session.sendAndWait({ prompt: fullPrompt }, timeoutMs);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anyRes = result as any;
@@ -88,14 +108,13 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
     const premiumRequests = typeof anyRes?.premiumRequests === "number"
       ? anyRes.premiumRequests : 1;
 
-    await session.disconnect();
+    await session.destroy();
     await client.stop();
 
     await appendAuditLog(input.id, started, true, summary);
     return { ok: true, summary, premiumRequests };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    // Best-effort cleanup
     try { await client.stop(); } catch { /* ignore */ }
     await appendAuditLog(input.id, started, false, msg);
     return { ok: false, summary: "session failed", error: msg };

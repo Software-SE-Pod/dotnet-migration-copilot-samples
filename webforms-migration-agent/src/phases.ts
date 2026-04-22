@@ -3,8 +3,8 @@ import path from "node:path";
 import { runSession } from "./copilot.js";
 import {
   commitAll, createBranch, openPr, pushBranch,
-  listOpenPrs, prIsGreen, mergePr, getPrState,
-  getPrDiff, postPrReview,
+  prIsGreen, mergePr, getPrState, getPrDiff, getPrFiles,
+  postPrComment, postPrReview,
   checkoutDefaultBranch, type PrInfo,
 } from "./github.js";
 import {
@@ -13,9 +13,10 @@ import {
   MAX_PHASE_ATTEMPTS, MAX_PAGE_ATTEMPTS,
   escalatePage, escalatePhase,
 } from "./state.js";
-import { runNswag, codegenIsDirty } from "./openapi.js";
+import { runNswag } from "./openapi.js";
 
 const TARGET_REPO = process.env.MIGRATION_TARGET_REPO ?? process.cwd();
+const MAX_REPAIR_ATTEMPTS = 2;
 
 const BOOTSTRAP_PROMPT_FILES: Record<PhaseKey, string> = {
   solution: "00-bootstrap-solution.md",
@@ -39,52 +40,231 @@ async function loadSkills(): Promise<string[]> {
   return Promise.all(SKILL_FILES.map(f => fs.readFile(path.join("skills", f), "utf8")));
 }
 
-/** ============================================================= */
-/**  PR Review — run Copilot SDK to review before merging          */
-/** ============================================================= */
+/* ================================================================ */
+/*  Programmatic PR Review (no Copilot SDK needed)                  */
+/* ================================================================ */
 
-export interface ReviewResult {
-  approved: boolean;
-  body: string;
+interface ReviewFinding {
+  severity: "critical" | "warning" | "info";
+  category: string;
+  message: string;
+  file?: string;
+}
+
+const SECURITY_PATTERNS: Array<{ pattern: RegExp; message: string }> = [
+  { pattern: /(?:password|secret|api[_-]?key|token)\s*[:=]\s*["'][^"']+["']/gi, message: "Possible hardcoded secret" },
+  { pattern: /\bSqlCommand\b.*\+.*\bRequest\b/gi, message: "Potential SQL injection (string concat with user input)" },
+  { pattern: /\beval\s*\(/gi, message: "Dangerous eval() usage" },
+  { pattern: /innerHTML\s*=/gi, message: "innerHTML assignment (potential XSS)" },
+  { pattern: /dangerouslySetInnerHTML/gi, message: "dangerouslySetInnerHTML usage (review for XSS)" },
+  { pattern: /\bAllowAnonymous\b/gi, message: "AllowAnonymous attribute — verify intentional" },
+  { pattern: /disable.*cors|cors.*\*/gi, message: "Wide-open CORS configuration" },
+];
+
+const MIGRATION_ANTIPATTERNS: Array<{ pattern: RegExp; message: string }> = [
+  { pattern: /\bViewState\b/gi, message: "ViewState reference in new code — WebForms artifact" },
+  { pattern: /\bSession\s*\[/gi, message: "Session bag usage — should use typed state management" },
+  { pattern: /<asp:/gi, message: "ASP.NET WebForms server control in new code" },
+  { pattern: /\bPage_Load\b/gi, message: "Page_Load handler — WebForms lifecycle" },
+  { pattern: /\bIsPostBack\b/gi, message: "IsPostBack check — WebForms pattern" },
+  { pattern: /System\.Web\b/gi, message: "System.Web namespace reference" },
+];
+
+function reviewDiff(diff: string, files: Array<{ filename: string; status: string; patch?: string }>): ReviewFinding[] {
+  const findings: ReviewFinding[] = [];
+
+  // Only check added/modified lines in the diff
+  const addedLines = diff.split("\n").filter(l => l.startsWith("+") && !l.startsWith("+++"));
+
+  for (const { pattern, message } of SECURITY_PATTERNS) {
+    for (const line of addedLines) {
+      if (pattern.test(line)) {
+        findings.push({ severity: "critical", category: "Security", message, file: undefined });
+        break; // one finding per pattern
+      }
+      pattern.lastIndex = 0; // reset global regex
+    }
+  }
+
+  // Migration antipatterns — only in NEW files (not the legacy .aspx files)
+  const newFiles = files.filter(f => f.status === "added" || f.status === "modified");
+  for (const f of newFiles) {
+    if (/\.aspx(\.cs)?$/i.test(f.filename)) continue; // skip legacy files
+    const patch = f.patch ?? "";
+    for (const { pattern, message } of MIGRATION_ANTIPATTERNS) {
+      if (pattern.test(patch)) {
+        findings.push({ severity: "warning", category: "Migration", message, file: f.filename });
+      }
+      pattern.lastIndex = 0;
+    }
+  }
+
+  // Structural checks
+  const hasControllers = files.some(f => /Controllers\/.*\.cs$/i.test(f.filename));
+  const hasReactPages  = files.some(f => /pages\/.*\.(tsx|jsx)$/i.test(f.filename));
+  const hasOpenApi     = files.some(f => /openapi\.ya?ml$/i.test(f.filename));
+  const hasGenerated   = files.some(f => /Generated\//i.test(f.filename));
+
+  if (hasOpenApi && !hasGenerated) {
+    findings.push({
+      severity: "warning",
+      category: "Completeness",
+      message: "OpenAPI YAML changed but no generated code updated — run NSwag?",
+    });
+  }
+
+  return findings;
+}
+
+function formatReviewComment(findings: ReviewFinding[]): string {
+  const critical = findings.filter(f => f.severity === "critical");
+  const warnings = findings.filter(f => f.severity === "warning");
+  const infos    = findings.filter(f => f.severity === "info");
+
+  const lines: string[] = [
+    "## 🤖 Automated Migration Review",
+    "",
+  ];
+
+  if (critical.length === 0 && warnings.length === 0) {
+    lines.push("✅ **No critical or warning-level issues found.**");
+    lines.push("");
+  }
+
+  if (critical.length > 0) {
+    lines.push("### 🚨 Critical Issues");
+    for (const f of critical) {
+      lines.push(`- **[${f.category}]** ${f.message}${f.file ? ` (in \`${f.file}\`)` : ""}`);
+    }
+    lines.push("");
+  }
+
+  if (warnings.length > 0) {
+    lines.push("### ⚠️ Warnings");
+    for (const f of warnings) {
+      lines.push(`- **[${f.category}]** ${f.message}${f.file ? ` (in \`${f.file}\`)` : ""}`);
+    }
+    lines.push("");
+  }
+
+  if (infos.length > 0) {
+    lines.push("### ℹ️ Info");
+    for (const f of infos) {
+      lines.push(`- **[${f.category}]** ${f.message}${f.file ? ` (in \`${f.file}\`)` : ""}`);
+    }
+    lines.push("");
+  }
+
+  const verdict = critical.length > 0 ? "REQUEST_CHANGES" : "APPROVE";
+  lines.push(`### Verdict: **${verdict}**`);
+  lines.push(`- Critical: ${critical.length} | Warnings: ${warnings.length} | Info: ${infos.length}`);
+
+  return lines.join("\n");
+}
+
+/* ================================================================ */
+/*  Review + Merge — called by orchestrator for any open PR         */
+/* ================================================================ */
+
+export type ReviewOutcome = "merged" | "approved-not-mergeable" | "changes-requested" | "ci-pending" | "closed";
+
+/**
+ * Review an open migration PR:
+ *   1. Check if PR is still open
+ *   2. Wait for CI to be green
+ *   3. Run programmatic security + migration review
+ *   4. Post review comment
+ *   5. Approve + merge if no critical issues
+ *   6. Request changes if critical issues found
+ */
+export async function reviewAndMergePr(prNumber: number): Promise<ReviewOutcome> {
+  const prState = await getPrState(prNumber);
+
+  if (prState.merged) return "closed";
+  if (prState.state === "closed") return "closed";
+
+  // CI check — if not green, wait for next cron run
+  const ciGreen = await prIsGreen(prNumber);
+  if (!ciGreen) {
+    console.log(`[review] PR #${prNumber}: CI not green yet — will check next run.`);
+    return "ci-pending";
+  }
+
+  // Get diff + files for review
+  const [diff, files] = await Promise.all([
+    getPrDiff(prNumber),
+    getPrFiles(prNumber),
+  ]);
+
+  const findings = reviewDiff(diff, files);
+  const reviewBody = formatReviewComment(findings);
+  const hasCritical = findings.some(f => f.severity === "critical");
+
+  // Post review comment
+  await postPrComment(prNumber, reviewBody);
+
+  if (hasCritical) {
+    // Post formal review requesting changes
+    await postPrReview(prNumber, "Automated review found critical issues — see comment above.", "REQUEST_CHANGES");
+    console.log(`[review] PR #${prNumber}: ${findings.filter(f => f.severity === "critical").length} critical issues — requesting changes.`);
+    return "changes-requested";
+  }
+
+  // Approve and merge
+  await postPrReview(prNumber, "Automated review passed — no critical issues.", "APPROVE");
+  const merged = await mergePr(prNumber);
+  if (merged) {
+    console.log(`[review] PR #${prNumber}: approved + merged ✅`);
+    // Update manifest to reflect the merge
+    await updateManifestAfterMerge(prNumber, prState.head);
+    return "merged";
+  }
+
+  console.log(`[review] PR #${prNumber}: approved but merge failed (branch protection?) — will retry.`);
+  return "approved-not-mergeable";
 }
 
 /**
- * Run a Copilot SDK session to review a PR diff. Returns whether the
- * review approves the PR and the review comment body.
+ * After merging a PR, update the manifest to reflect the completion.
  */
-export async function reviewPr(prNumber: number, sessionId: string): Promise<ReviewResult> {
-  const diff = await getPrDiff(prNumber);
-  const reviewTemplate = await loadPrompt("12-review.md");
-  const prompt = reviewTemplate.replace("{{PR_DIFF}}", diff);
-  const skills = await loadSkills();
+async function updateManifestAfterMerge(prNumber: number, headBranch: string): Promise<void> {
+  try {
+    const manifest = await readManifest();
 
-  const result = await runSession({
-    id: sessionId,
-    prompt,
-    skills,
-    cwd: TARGET_REPO,
-    branch: "HEAD",           // review is read-only, no branch needed
-    timeoutMinutes: 10,
-  });
+    // Check bootstrap phases
+    for (const [key, state] of Object.entries(manifest.bootstrap)) {
+      if (state.pr === prNumber && state.status === "in-progress") {
+        state.status = "done";
+        state.notes = `PR #${prNumber} merged`;
+        stamp(state);
+      }
+    }
 
-  // Parse verdict from the session summary
-  const summary = result.summary ?? "";
-  const approved = /verdict:\s*approve/i.test(summary)
-    && !/request.changes/i.test(summary);
+    // Check pages
+    for (const page of manifest.pages) {
+      if (page.contractPr === prNumber && ["contract-open", "review-open"].includes(page.status)) {
+        page.status = "done";
+        page.notes = `PR #${prNumber} merged`;
+        stamp(page);
+      }
+      if (page.implPr === prNumber && page.status === "impl-open") {
+        page.status = "done";
+        page.notes = `PR #${prNumber} merged`;
+        stamp(page);
+      }
+    }
 
-  const reviewBody = summary || "(Review session produced no output)";
-
-  // Post the review to the PR
-  const event = approved ? "APPROVE" as const : "REQUEST_CHANGES" as const;
-  await postPrReview(prNumber, reviewBody, event);
-
-  console.log(`[review] PR #${prNumber}: ${event}`);
-  return { approved, body: reviewBody };
+    await writeManifest(manifest);
+  } catch (err) {
+    console.warn(`[review] failed to update manifest after merge: ${err}`);
+  }
 }
 
+/* ================================================================ */
+/*  Bootstrap phase (creates a PR)                                  */
+/* ================================================================ */
+
 export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
-  // Read manifest, update status, then switch branch. Manifest is persisted
-  // on the feature branch so it doesn't pollute main until reconcile merges.
   const manifest = await readManifest();
   const state = manifest.bootstrap[phase];
 
@@ -97,7 +277,6 @@ export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
   const branch = `migration/bootstrap/${phase}`;
   await createBranch(branch);
 
-  // Now on the feature branch — safe to mutate manifest.
   state.status = "in-progress";
   state.attempts = (state.attempts ?? 0) + 1;
   stamp(state);
@@ -113,9 +292,9 @@ export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
     cwd: TARGET_REPO,
     branch,
     timeoutMinutes: 120,
+    useMcpModernize: true,
   });
 
-  // Track budget.
   addBudgetUsage(manifest, result.premiumRequests ?? 1);
 
   if (!result.ok) {
@@ -129,7 +308,6 @@ export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
 
   const committed = commitAll(`migration(${phase}): bootstrap scaffold`);
   if (!committed) {
-    // Session produced no diff — treat as done (nothing to do).
     state.status = "done";
     state.notes = "no changes required";
     stamp(state);
@@ -147,7 +325,6 @@ export async function runBootstrapPhase(phase: PhaseKey): Promise<void> {
   state.pr = pr;
   stamp(state);
   await writeManifest(manifest);
-  // Commit manifest update on the branch so it persists.
   commitAll(`migration(${phase}): update manifest state`);
   pushBranch(branch);
   await checkoutDefaultBranch();
@@ -173,9 +350,9 @@ function bootstrapPrBody(phase: PhaseKey, summary: string): string {
   ].join("\n");
 }
 
-/** ============================================================= */
-/**  PAGE contract phase (Phase 10)                                */
-/** ============================================================= */
+/* ================================================================ */
+/*  Page contract phase (creates a PR)                              */
+/* ================================================================ */
 
 export async function runContractPhase(page: PageEntry): Promise<void> {
   const manifest = await readManifest();
@@ -210,6 +387,7 @@ export async function runContractPhase(page: PageEntry): Promise<void> {
     cwd: TARGET_REPO,
     branch,
     timeoutMinutes: 60,
+    useMcpModernize: true,
   });
 
   addBudgetUsage(manifest, result.premiumRequests ?? 1);
@@ -236,7 +414,6 @@ export async function runContractPhase(page: PageEntry): Promise<void> {
     return;
   }
 
-  // Gate: there must be actual changes after session + codegen.
   const committed = commitAll(
     `migration(page ${page.id}): contract (openapi + nswag scaffolding)`
   );
@@ -251,7 +428,6 @@ export async function runContractPhase(page: PageEntry): Promise<void> {
 
   pushBranch(branch);
 
-  // Build the implementation prompt that goes into the PR body for @copilot.
   const implPrompt = (await loadPrompt("11-page-implementation.md"))
     .replaceAll("{{ASPX_PATH}}", page.aspxPath)
     .replaceAll("{{PAGE_ID}}", page.id)
@@ -262,10 +438,8 @@ export async function runContractPhase(page: PageEntry): Promise<void> {
     body:  contractPrBody(page, result.summary, implPrompt),
     head:  branch,
     labels: ["migration", "phase:contract", `page:${page.id}`, "auto"],
-    assignCopilot: true,
   });
   p.contractPr = pr;
-  // Status stays contract-open until reconcile detects the Coding Agent's work.
   stamp(p);
   await writeManifest(manifest);
   commitAll(`migration(${page.id}): update manifest state`);
@@ -287,9 +461,9 @@ function contractPrBody(page: PageEntry, summary: string, implPrompt: string): s
     "",
     "---",
     "",
-    "## Instructions for @copilot (Coding Agent)",
+    "### Implementation guidance",
     "",
-    implPrompt,
+    implPrompt.slice(0, 3000),
     "",
     "---",
     "",
@@ -298,157 +472,4 @@ function contractPrBody(page: PageEntry, summary: string, implPrompt: string): s
     summary.slice(0, 3000),
     "```",
   ].join("\n");
-}
-
-/** ============================================================= */
-/**  Reconciliation: watch open PRs, review, then merge.          */
-/** ============================================================= */
-
-export async function reconcile(): Promise<void> {
-  const manifest = await readManifest();
-  const openPrs = await listOpenPrs();
-  const openByHead = new Map(openPrs.map(p => [p.head, p]));
-
-  // --- Bootstrap PRs ---
-  for (const [key, state] of Object.entries(manifest.bootstrap) as [PhaseKey, Manifest["bootstrap"][PhaseKey]][]) {
-    if (state.status !== "in-progress" || !state.pr) continue;
-    const branch = `migration/bootstrap/${key}`;
-    const openPr = openByHead.get(branch);
-
-    if (!openPr) {
-      const prState = await getPrState(state.pr);
-      if (prState.merged) {
-        state.status = "done";
-        state.notes = `PR #${state.pr} merged`;
-        stamp(state);
-      } else if (prState.state === "closed") {
-        state.status = "failed";
-        state.notes = `PR #${state.pr} closed without merge`;
-        stamp(state);
-      }
-      continue;
-    }
-
-    // CI green → review first, then merge only if approved.
-    if (await prIsGreen(state.pr)) {
-      const review = await reviewPr(state.pr, `review:bootstrap:${key}`);
-      if (review.approved) {
-        const merged = await mergePr(state.pr);
-        if (merged) {
-          state.status = "done";
-          state.notes = `PR #${state.pr} reviewed + merged`;
-          stamp(state);
-        }
-      } else {
-        state.notes = `PR #${state.pr} review requested changes — waiting for fixes`;
-        stamp(state);
-      }
-    }
-  }
-
-  // --- Page PRs ---
-  for (const page of manifest.pages) {
-
-    // contract-open: CI green → run review → advance to review-open or merge
-    if (page.status === "contract-open" && page.contractPr) {
-      const prState = await getPrState(page.contractPr);
-      if (prState.merged) {
-        page.status = "done";
-        page.notes = `contract PR #${page.contractPr} merged`;
-        stamp(page);
-        continue;
-      }
-      if (prState.state === "closed") {
-        page.status = "failed";
-        page.notes = `contract PR #${page.contractPr} closed without merge`;
-        stamp(page);
-        continue;
-      }
-      // PR still open + CI green → run the review
-      if (await prIsGreen(page.contractPr)) {
-        const review = await reviewPr(page.contractPr, `review:page:${page.id}:contract`);
-        if (review.approved) {
-          const merged = await mergePr(page.contractPr);
-          if (merged) {
-            page.status = "done";
-            page.notes = `contract PR #${page.contractPr} reviewed + merged`;
-            stamp(page);
-          }
-        } else {
-          // Move to review-open so we don't re-review every cycle.
-          // Next cycle will check if @copilot pushed fixes and CI is green again.
-          page.status = "review-open";
-          page.notes = `review requested changes on PR #${page.contractPr}`;
-          stamp(page);
-        }
-      }
-    }
-
-    // review-open: previously reviewed and changes requested — wait for fixes, re-review
-    if (page.status === "review-open" && page.contractPr) {
-      const prState = await getPrState(page.contractPr);
-      if (prState.merged) {
-        page.status = "done";
-        page.notes = `PR #${page.contractPr} merged after review`;
-        stamp(page);
-        continue;
-      }
-      if (prState.state === "closed") {
-        page.status = "failed";
-        page.notes = `PR #${page.contractPr} closed after review`;
-        stamp(page);
-        continue;
-      }
-      // Check if CI is green again (Coding Agent may have pushed fixes)
-      if (await prIsGreen(page.contractPr)) {
-        const review = await reviewPr(page.contractPr, `review:page:${page.id}:rereview`);
-        if (review.approved) {
-          const merged = await mergePr(page.contractPr);
-          if (merged) {
-            page.status = "done";
-            page.notes = `PR #${page.contractPr} approved on re-review + merged`;
-            stamp(page);
-          }
-        } else {
-          page.attempts = (page.attempts ?? 0) + 1;
-          page.notes = `review still requesting changes (attempt ${page.attempts})`;
-          stamp(page);
-        }
-      }
-    }
-
-    // Handle impl-open status (if we ever split to 2 PRs in the future).
-    if (page.status === "impl-open" && page.implPr) {
-      const prState = await getPrState(page.implPr);
-      if (prState.merged) {
-        page.status = "done";
-        page.notes = `impl PR #${page.implPr} merged`;
-        stamp(page);
-      } else if (prState.state === "closed") {
-        page.status = "failed";
-        page.notes = `impl PR #${page.implPr} closed without merge`;
-        stamp(page);
-      } else if (await prIsGreen(page.implPr)) {
-        const review = await reviewPr(page.implPr, `review:page:${page.id}:impl`);
-        if (review.approved) {
-          const merged = await mergePr(page.implPr);
-          if (merged) {
-            page.status = "done";
-            page.notes = `impl PR #${page.implPr} reviewed + merged`;
-            stamp(page);
-          }
-        } else {
-          page.notes = `impl PR #${page.implPr} review requested changes`;
-          stamp(page);
-        }
-      }
-    }
-
-    // Escalate pages that have failed too many times.
-    if (page.status === "failed" && (page.attempts ?? 0) >= MAX_PAGE_ATTEMPTS) {
-      escalatePage(page, `failed ${page.attempts} times — needs human review`);
-    }
-  }
-
-  await writeManifest(manifest);
 }

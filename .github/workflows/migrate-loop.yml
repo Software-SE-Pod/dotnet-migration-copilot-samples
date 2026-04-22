@@ -57,6 +57,14 @@ jobs:
           dotnet-version: "8.0.x"
           install-framework-targeting-packs: "true"
 
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @anthropic-ai/claude-cli@latest 2>$null
+          # Install GitHub Copilot CLI (required by @github/copilot-sdk)
+          npm install -g @githubnext/copilot-cli@latest 2>$null
+          # Verify copilot is available (non-fatal if not found)
+          try { copilot --version } catch { Write-Warning "Copilot CLI not found — SDK sessions will fail but review/merge still works." }
+
       - name: Install NSwag console
         run: dotnet tool install --global NSwag.ConsoleCore
 
@@ -76,7 +84,6 @@ jobs:
           GH_TOKEN:             ${{ secrets.MIGRATION_PAT }}
           GITHUB_REPOSITORY:    ${{ github.repository }}
           MIGRATION_BUDGET_MINUTES: "270"
-          MIGRATION_MAX_OPEN_PRS:   "3"
           MIGRATION_DRY_RUN:        ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
           MIGRATION_TARGET_REPO:    ${{ github.workspace }}
         run: npx tsx src/orchestrator.ts
