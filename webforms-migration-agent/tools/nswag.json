@@ -1,0 +1,18 @@
+{
+  \
+runtime\: \Net80\,
+  \documentGenerator\: false,
+  \codeGenerators\: [
+    {
+      \from\: \contracts/openapi.yaml\,
+      \to\: \dotnet/ApiContracts/Generated\,
+      \output\: \csharp\,
+      \namespace\: \ApiContracts.Generated\
+    },
+    {
+      \from\: \contracts/openapi.yaml\,
+      \to\: \web/src/api/generated\,
+      \output\: \typescript\
+    }
+  ]
+}
