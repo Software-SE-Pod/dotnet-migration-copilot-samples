@@ -4,8 +4,8 @@
     "solution": {
       "status": "in-progress",
       "attempts": 2,
-      "lastUpdated": "2026-04-22T07:44:56.272Z",
-      "pr": 6
+      "lastUpdated": "2026-04-22T08:00:56.718Z",
+      "pr": 8
     },
     "identity": {
       "status": "pending",
@@ -141,7 +141,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 1,
+    "premiumRequestsUsed": 2,
     "premiumRequestsCap": 2000
   }
 }
