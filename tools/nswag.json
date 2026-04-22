@@ -1,2 +1,19 @@
-{\n  \
-runtime\: \Net80\,\n  \defaultVariables\: {},\n  \documentGenerator\: {\n    \fromDocument\: \contracts/openapi.yaml\,\n    \output\: [\n      { \output\: \dotnet/ApiContracts/Generated\, \type\: \csharp\ },\n      { \output\: \web/src/api/generated\, \type\: \typescript\ }\n    ]\n  }\n}
+{
+  "runtime": "Net80",
+  "defaultVariables": {},
+  "swaggerGenerators": {
+    "openapi": {
+      "fromDocument": "../contracts/openapi.yaml"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "className": "ApiContractsClient",
+      "namespace": "ApiContracts.Generated",
+      "output": "../dotnet/ApiContracts/Generated/ApiContracts.cs"
+    },
+    "openApiToTypeScriptClient": {
+      "output": "../web/src/api/generated/index.ts"
+    }
+  }
+}
