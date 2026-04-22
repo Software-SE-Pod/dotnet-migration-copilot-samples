@@ -4,7 +4,7 @@ import {
   readManifest, writeManifest, stamp, addBudgetUsage, budgetExhausted,
   nextPendingPhase, bootstrapComplete, nextPendingPage,
 } from "./state.js";
-import { runBootstrapPhase, runContractPhase, reviewAndMergePr } from "./phases.js";
+import { runBootstrapPhase, runContractPhase, reviewAndMergePr, updateManifestAfterMerge } from "./phases.js";
 import { discoverAspxPages, classify } from "./pageClassifier.js";
 import {
   commitAll, pushBranch, createBranch, openPr,
@@ -179,6 +179,7 @@ async function main(): Promise<void> {
         const merged = await waitAndMerge(activePr.number);
         if (merged) {
           console.log(`[orchestrator] PR #${activePr.number} merged after CI wait ✅`);
+          await updateManifestAfterMerge(activePr.number, activePr.head);
           continue;
         }
         // If we couldn't merge after waiting, loop back (re-review on next iteration)

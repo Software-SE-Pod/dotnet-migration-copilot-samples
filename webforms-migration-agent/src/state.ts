@@ -15,8 +15,8 @@ export type PageStatus  =
   | "done" | "failed" | "blocked" | "needs-human";
 export type Scenario    = "form" | "grid" | "report" | "wizard" | "dashboard" | "auth" | "unknown";
 
-export const MAX_PHASE_ATTEMPTS = 3;
-export const MAX_PAGE_ATTEMPTS  = 3;
+export const MAX_PHASE_ATTEMPTS = 5;
+export const MAX_PAGE_ATTEMPTS  = 5;
 
 export interface PhaseState {
   status: PhaseStatus;

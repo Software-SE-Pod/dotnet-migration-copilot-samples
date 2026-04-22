@@ -2,10 +2,10 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { runSession } from "./copilot.js";
 import {
-  commitAll, createBranch, openPr, pushBranch,
+  sh, commitAll, createBranch, openPr, pushBranch,
   prIsGreen, mergePr, closePr, getPrState, getPrDiff, getPrFiles,
   postPrComment, postPrReview,
-  checkoutDefaultBranch, rebasePrBranch, prHasConflicts,
+  checkoutDefaultBranch, getDefaultBranch, rebasePrBranch, prHasConflicts,
   type PrInfo,
 } from "./github.js";
 import {
@@ -244,18 +244,24 @@ export async function reviewAndMergePr(prNumber: number): Promise<ReviewOutcome>
 }
 
 /**
- * After merging a PR, update the manifest to reflect the completion.
+ * After merging a PR, update the manifest on main to reflect the completion.
+ * This persists state so the next iteration knows what phase was completed.
  */
-async function updateManifestAfterMerge(prNumber: number, headBranch: string): Promise<void> {
+export async function updateManifestAfterMerge(prNumber: number, headBranch: string): Promise<void> {
   try {
+    // Switch to main to persist manifest state
+    await checkoutDefaultBranch();
+
     const manifest = await readManifest();
 
     // Check bootstrap phases
+    let changed = false;
     for (const [key, state] of Object.entries(manifest.bootstrap)) {
       if (state.pr === prNumber && state.status === "in-progress") {
         state.status = "done";
         state.notes = `PR #${prNumber} merged`;
         stamp(state);
+        changed = true;
       }
     }
 
@@ -265,15 +271,25 @@ async function updateManifestAfterMerge(prNumber: number, headBranch: string): P
         page.status = "done";
         page.notes = `PR #${prNumber} merged`;
         stamp(page);
+        changed = true;
       }
       if (page.implPr === prNumber && page.status === "impl-open") {
         page.status = "done";
         page.notes = `PR #${prNumber} merged`;
         stamp(page);
+        changed = true;
       }
     }
 
-    await writeManifest(manifest);
+    if (changed) {
+      await writeManifest(manifest);
+      const committed = commitAll(`migration: mark PR #${prNumber} as done in manifest`);
+      if (committed) {
+        // Simple push to main — no force-push or workflow stripping needed
+        sh(`git push origin HEAD`);
+        console.log(`[review] manifest updated on main — PR #${prNumber} marked done.`);
+      }
+    }
   } catch (err) {
     console.warn(`[review] failed to update manifest after merge: ${err}`);
   }
