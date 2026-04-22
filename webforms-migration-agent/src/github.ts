@@ -197,7 +197,10 @@ export async function prIsGreen(num: number): Promise<boolean> {
   if (pr.data.state !== "open") return false;
   const sha = pr.data.head.sha;
   const { data } = await gh.checks.listForRef({ owner, repo, ref: sha });
-  if (data.total_count === 0) return false;
+  // No check runs = no CI configured = nothing blocking the merge
+  if (data.total_count === 0) return true;
+  // If any checks are still in progress, wait
+  if (data.check_runs.some(cr => cr.status !== "completed")) return false;
   return data.check_runs.every(cr =>
     cr.conclusion === "success" || cr.conclusion === "skipped" || cr.conclusion === "neutral"
   );
