@@ -161,9 +161,10 @@
       "aspxPath": "ContosoUniversity.WebForms/Pages/Students/StudentList.aspx",
       "scenario": "grid",
       "risk": "medium",
-      "attempts": 0,
+      "attempts": 1,
       "notes": "updatePanels=1 viewState=true session=false master=true evalBind=true codeBehindLines=123",
-      "status": "pending"
+      "status": "contract-open",
+      "lastUpdated": "2026-04-22T10:49:12.110Z"
     }
   ],
   "budget": {
