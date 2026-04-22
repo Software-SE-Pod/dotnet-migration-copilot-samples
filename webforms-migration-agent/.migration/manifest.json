@@ -23,10 +23,11 @@
       "notes": "PR #30 merged"
     },
     "secrets": {
-      "status": "in-progress",
+      "status": "done",
       "attempts": 1,
-      "lastUpdated": "2026-04-22T14:51:36.450Z",
-      "pr": 31
+      "lastUpdated": "2026-04-22T14:54:54.370Z",
+      "pr": 31,
+      "notes": "PR #31 merged"
     },
     "storage": {
       "status": "pending",
