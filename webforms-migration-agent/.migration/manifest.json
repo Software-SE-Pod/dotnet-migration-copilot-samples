@@ -51,8 +51,8 @@
       "scenario": "dashboard",
       "risk": "medium",
       "attempts": 1,
-      "notes": "updatePanels=1 viewState=true session=true master=true evalBind=true codeBehindLines=47",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:41:29.139Z"
     },
     {
@@ -71,8 +71,8 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=false codeBehindLines=75",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:16:54.125Z"
     },
     {
@@ -81,8 +81,8 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=true codeBehindLines=61",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:20:26.558Z"
     },
     {
@@ -102,8 +102,8 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=false codeBehindLines=94",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:23:58.757Z"
     },
     {
@@ -112,8 +112,8 @@
       "scenario": "grid",
       "risk": "medium",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=true session=false master=true evalBind=true codeBehindLines=35",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:45:38.935Z"
     },
     {
@@ -122,8 +122,8 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=false codeBehindLines=103",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:27:32.165Z"
     },
     {
@@ -132,8 +132,8 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=true codeBehindLines=45",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:31:01.296Z"
     },
     {
@@ -142,8 +142,8 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=true codeBehindLines=94",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:34:26.876Z"
     },
     {
@@ -152,8 +152,8 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "updatePanels=0 viewState=false session=false master=true evalBind=false codeBehindLines=72",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:37:57.245Z"
     },
     {
@@ -162,8 +162,8 @@
       "scenario": "grid",
       "risk": "medium",
       "attempts": 1,
-      "notes": "updatePanels=1 viewState=true session=false master=true evalBind=true codeBehindLines=123",
-      "status": "contract-open",
+      "notes": "auto-recovered: PR likely merged but manifest not updated",
+      "status": "done",
       "lastUpdated": "2026-04-22T10:49:12.110Z"
     }
   ],
