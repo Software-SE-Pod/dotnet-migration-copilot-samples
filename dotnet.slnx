@@ -1,2 +1,7 @@
 <Solution>
+  <Folder Name="/dotnet/">
+    <Project Path="dotnet/Api/Api.csproj" />
+    <Project Path="dotnet/ApiContracts/ApiContracts.csproj" />
+    <Project Path="dotnet/Host/Host.csproj" />
+  </Folder>
 </Solution>

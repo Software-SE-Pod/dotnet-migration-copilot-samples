@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Power API
+  version: 0.1.0
+servers:
+  - url: http://localhost:5000
+    description: Local API
+  - url: http://localhost:5173
+    description: Local Web
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      tags: [health]
+      x-page-id: health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthViewModel'
+components:
+  schemas:
+    HealthViewModel:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
