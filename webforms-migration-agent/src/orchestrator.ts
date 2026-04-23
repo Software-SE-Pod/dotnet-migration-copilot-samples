@@ -2,68 +2,40 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import {
   readManifest, writeManifest, stamp, addBudgetUsage, budgetExhausted,
-  nextPendingPhase, bootstrapComplete, nextPendingPage,
+  nextPendingPhase, bootstrapComplete, nextPendingPage, nextNeedsImplPage, openPrCount,
 } from "./state.js";
-import { runBootstrapPhase, runContractPhase, reviewAndMergePr, updateManifestAfterMerge } from "./phases.js";
+import { runBootstrapPhase, runContractPhase, runImplementationPhase, reconcile } from "./phases.js";
 import { discoverAspxPages, classify } from "./pageClassifier.js";
 import {
-  sh, commitAll, pushBranch, createBranch, openPr,
-  checkoutDefaultBranch, getDefaultBranch, getActiveMigrationPr,
-  prIsGreen, mergePr,
+  commitAll, pushBranch, createBranch, openPr,
+  checkoutDefaultBranch, getDefaultBranch,
 } from "./github.js";
 
 const BUDGET_MINUTES = parseInt(process.env.MIGRATION_BUDGET_MINUTES ?? "270", 10);
+const MAX_OPEN_PRS  = parseInt(process.env.MIGRATION_MAX_OPEN_PRS ?? "3", 10);
 const TARGET_REPO   = process.env.MIGRATION_TARGET_REPO ?? process.cwd();
 const started = Date.now();
-
-const CI_POLL_INTERVAL_S = 30;
-const CI_MAX_WAIT_S = 600; // 10 minutes max wait for CI
-
-/* ---------- helpers ---------- */
 
 function wallClockExceeded(): boolean {
   return (Date.now() - started) / 60_000 > BUDGET_MINUTES;
 }
 
-async function ensureMigrationFolder(): Promise<void> {
-  await fs.mkdir(path.resolve(".migration"), { recursive: true });
-}
-
-/** Poll CI checks and merge once green. Returns true if merged. */
-async function waitAndMerge(prNumber: number): Promise<boolean> {
-  const deadline = Date.now() + CI_MAX_WAIT_S * 1000;
-  while (Date.now() < deadline && !wallClockExceeded()) {
-    await new Promise(r => setTimeout(r, CI_POLL_INTERVAL_S * 1000));
-    const green = await prIsGreen(prNumber);
-    if (green) {
-      console.log(`[orchestrator] CI green for PR #${prNumber} — merging.`);
-      const ok = await mergePr(prNumber);
-      if (ok) return true;
-      console.warn(`[orchestrator] merge failed for PR #${prNumber} after CI green.`);
-      return false;
-    }
-    const elapsed = Math.round((Date.now() - (deadline - CI_MAX_WAIT_S * 1000)) / 1000);
-    console.log(`[orchestrator] CI still pending for PR #${prNumber} (${elapsed}s / ${CI_MAX_WAIT_S}s)…`);
-  }
-  return false;
-}
-
-/* ---------- inventory ---------- */
-
-async function ensurePageInventory(): Promise<"exists" | "created-pr" | "empty"> {
+async function ensurePageInventory(): Promise<void> {
   const manifest = await readManifest();
-  if (manifest.pages.length > 0) return "exists";
+  if (manifest.pages.length > 0) return;
 
   console.log(`[inventory] scanning ${TARGET_REPO} for .aspx pages…`);
   const files = await discoverAspxPages(TARGET_REPO);
   console.log(`[inventory] found ${files.length} pages`);
+
   if (files.length === 0) {
     console.log("[inventory] no .aspx pages found — nothing to migrate.");
-    return "empty";
+    return;
   }
 
   for (const f of files) {
     const entry = await classify(f, TARGET_REPO);
+    // Auto-block auth pages per PWR domain rules.
     if (entry.scenario === "auth") {
       manifest.pages.push({
         ...entry,
@@ -76,13 +48,15 @@ async function ensurePageInventory(): Promise<"exists" | "created-pr" | "empty">
   }
   stamp(manifest.pages[0] ?? {});
 
+  // Create a branch for the inventory PR. Manifest is committed on the branch.
   const branch = "migration/inventory";
   await createBranch(branch);
   await writeManifest(manifest);
   const committed = commitAll("migration: initial page inventory + risk classification");
   if (!committed) {
+    console.log("[inventory] no changes to commit for inventory.");
     await checkoutDefaultBranch();
-    return "exists";
+    return;
   }
   pushBranch(branch);
   await openPr({
@@ -92,11 +66,10 @@ async function ensurePageInventory(): Promise<"exists" | "created-pr" | "empty">
     labels: ["migration", "phase:inventory", "auto"],
   });
   await checkoutDefaultBranch();
-  return "created-pr";
 }
 
 function inventoryBody(manifest: { pages: Array<{ scenario: string; status: string; risk?: string }> }): string {
-  const total   = manifest.pages.length;
+  const total = manifest.pages.length;
   const blocked = manifest.pages.filter(p => p.status === "blocked").length;
   const byScenario = manifest.pages.reduce((acc, p) => {
     acc[p.scenario] = (acc[p.scenario] ?? 0) + 1;
@@ -112,6 +85,7 @@ function inventoryBody(manifest: { pages: Array<{ scenario: string; status: stri
     `This PR initializes the migration manifest with **${total} discovered .aspx pages**.`,
     "",
     "### Breakdown",
+    "",
     "**By scenario:**",
     ...Object.entries(byScenario).map(([k, v]) => `- ${k}: ${v}`),
     "",
@@ -120,157 +94,128 @@ function inventoryBody(manifest: { pages: Array<{ scenario: string; status: stri
     "",
     blocked > 0 ? `⚠️ **${blocked} pages blocked** (auth pages awaiting Entra tenant decision)` : "",
     "",
+    "- Pages are pre-classified by scenario (form / grid / report / wizard / dashboard / auth)",
+    "- Risk is a heuristic — edit `.migration/manifest.json` to reorder if needed",
+    "- Merging this PR unblocks the autonomous loop",
+    "",
     "No code has changed yet — this is a state file only.",
-    "Merging this PR unblocks the autonomous loop.",
   ].filter(Boolean).join("\n");
 }
 
-/* ---------- main ---------- */
-
-/**
- * CONTINUOUS ONE-PR-AT-A-TIME LOOP
- *
- * Within a single run (budget permitting):
- *   1. If an open migration PR exists → review → merge (or wait for CI)
- *   2. After merge (or if no open PR) → create next PR → review → merge → repeat
- *   3. Stop when: budget exhausted, CI pending, migration complete, or error
- */
 async function main(): Promise<void> {
-  console.log(`[orchestrator] starting run, budget=${BUDGET_MINUTES}min`);
+  console.log(`[orchestrator] starting run, budget=${BUDGET_MINUTES}min, maxOpenPrs=${MAX_OPEN_PRS}`);
   console.log(`[orchestrator] target repo: ${TARGET_REPO}`);
   await ensureMigrationFolder();
 
+  // Resolve and cache default branch.
   const defaultBranch = await getDefaultBranch();
   console.log(`[orchestrator] default branch: ${defaultBranch}`);
 
-  let iteration = 0;
+  await ensurePageInventory();
 
-  while (!wallClockExceeded()) {
-    iteration++;
-    console.log(`\n[orchestrator] ── iteration ${iteration} ──`);
+  // Always reconcile first: merge greens, advance state, observe failures.
+  console.log("[orchestrator] reconciling open PRs…");
+  await reconcile();
 
-    // ── Step 1: Is there an open migration PR? Review + merge it. ──
-    const activePr = await getActiveMigrationPr();
-    if (activePr) {
-      console.log(`[orchestrator] found open migration PR #${activePr.number} (${activePr.head})`);
-      const result = await reviewAndMergePr(activePr.number);
-      console.log(`[orchestrator] PR #${activePr.number} → ${result}`);
-
-      if (result === "merged") {
-        // Successfully merged — loop back to create the next PR
-        console.log(`[orchestrator] merge complete — continuing to next task.`);
-        continue;
-      }
-      if (result === "closed") {
-        // PR was closed (e.g. conflict couldn't be rebased) — loop to recreate
-        console.log(`[orchestrator] PR closed — will recreate on next iteration.`);
-        continue;
-      }
-      if (result === "changes-requested") {
-        // Critical issues found — close PR so next iteration recreates cleanly
-        console.log(`[orchestrator] PR #${activePr.number} had critical review findings — closing to recreate.`);
-        const { closePr } = await import("./github.js");
-        await closePr(activePr.number);
-        continue;
-      }
-      if (result === "ci-pending" || result === "approved-not-mergeable") {
-        // Wait for CI inline instead of stopping — poll every 30s up to 10 min
-        console.log(`[orchestrator] PR #${activePr.number} ${result} — polling CI inline…`);
-        const merged = await waitAndMerge(activePr.number);
-        if (merged) {
-          console.log(`[orchestrator] PR #${activePr.number} merged after CI wait ✅`);
-          await updateManifestAfterMerge(activePr.number, activePr.head);
-          continue;
-        }
-        // If we couldn't merge after waiting, loop back (re-review on next iteration)
-        console.log(`[orchestrator] PR #${activePr.number} still not mergeable — will retry next iteration.`);
-        continue;
-      }
-      console.log(`[orchestrator] PR #${activePr.number} unexpected result (${result}) — continuing.`);
-      continue;
-    }
-
-    // ── Step 2: No open PR — pick the next task and create ONE PR. ──
-    console.log("[orchestrator] no open migration PR — advancing pipeline.");
-
-    // Ensure page inventory exists (creates a PR if first run).
-    const invResult = await ensurePageInventory();
-    if (invResult === "created-pr") {
-      console.log("[orchestrator] created inventory PR — looping to review it.");
-      continue;
-    }
-    if (invResult === "empty") return;
-
-    const manifest = await readManifest();
-    if (budgetExhausted(manifest)) {
-      console.log("[orchestrator] premium-request cap reached — yielding.");
-      return;
-    }
-
-    // Bootstrap phases first, then pages.
-    if (!bootstrapComplete(manifest)) {
-      const phase = nextPendingPhase(manifest);
-      if (!phase) {
-        console.log("[orchestrator] bootstrap has unrecoverable failures — human intervention required.");
-        return;
-      }
-      console.log(`[orchestrator] bootstrap phase: ${phase}`);
-      try {
-        await runBootstrapPhase(phase);
-        console.log(`[orchestrator] bootstrap PR created — looping to review it.`);
-      } catch (err) {
-        console.error(`[orchestrator] bootstrap phase failed: ${err}`);
-        console.log(`[orchestrator] will retry next iteration.`);
-        await checkoutDefaultBranch();
-      }
-      continue;
-    }
-
-    const page = nextPendingPage(manifest);
-    if (!page) {
-      const remaining = manifest.pages.filter(
-        p => !["done", "blocked", "needs-human"].includes(p.status),
-      );
-      if (remaining.length === 0) {
-        console.log("[orchestrator] ✅ migration complete — all pages done or blocked.");
-        return;
-      }
-      // Recovery: pages stuck in contract-open/impl-open may have merged PRs
-      // that weren't tracked. Mark them done and retry.
-      let recovered = false;
-      for (const p of remaining) {
-        if (["contract-open", "review-open", "impl-open"].includes(p.status)) {
-          console.log(`[orchestrator] recovering stale page ${p.id} (${p.status}) → done`);
-          p.status = "done";
-          p.notes = "auto-recovered: PR likely merged but manifest not updated";
-          recovered = true;
-        }
-      }
-      if (recovered) {
-        await writeManifest(manifest);
-        commitAll("migration: recover stale page statuses");
-        try { sh(`git push origin HEAD`); } catch { /* ignore push failure */ }
-        console.log(`[orchestrator] recovered stale pages — continuing.`);
-        continue;
-      }
-      console.log(`[orchestrator] ${remaining.length} pages in-flight/failed — waiting.`);
-      return;
-    }
-
-    console.log(`[orchestrator] contract phase: ${page.id} (${page.scenario}/${page.risk})`);
-    try {
-      await runContractPhase(page);
-      console.log(`[orchestrator] contract PR created — looping to review it.`);
-    } catch (err) {
-      console.error(`[orchestrator] contract phase failed: ${err}`);
-      console.log(`[orchestrator] will retry next iteration.`);
-      await checkoutDefaultBranch();
-    }
-    continue;
+  let manifest = await readManifest();
+  if (openPrCount(manifest) >= MAX_OPEN_PRS) {
+    console.log(`[orchestrator] ${openPrCount(manifest)} PRs already open — governor holding off.`);
+    await commitManifestToDefault();
+    return;
   }
 
-  const elapsed = ((Date.now() - started) / 60_000).toFixed(1);
-  console.log(`[orchestrator] budget exhausted after ${iteration} iterations, ${elapsed}min`);
+  // Phase order: bootstrap platform → then migrate pages.
+  if (!bootstrapComplete(manifest)) {
+    const phase = nextPendingPhase(manifest);
+    if (!phase) {
+      console.log("[orchestrator] bootstrap has unrecoverable failures — human intervention required.");
+      await commitManifestToDefault();
+      return;
+    }
+    console.log(`[orchestrator] bootstrap phase: ${phase}`);
+    await runBootstrapPhase(phase);
+    await commitManifestToDefault();
+    return;
+  }
+
+  const page = nextPendingPage(manifest);
+  const implPage = nextNeedsImplPage(manifest);
+
+  if (!page && !implPage) {
+    const remaining = manifest.pages.filter(p => !["done", "blocked", "needs-human"].includes(p.status));
+    if (remaining.length === 0) {
+      console.log("[orchestrator] no pending pages — migration complete 🎉");
+    } else {
+      console.log(`[orchestrator] ${remaining.length} pages in-flight or failed — waiting.`);
+    }
+    await commitManifestToDefault();
+    return;
+  }
+
+  // Process pages until budget or governor limit.
+  // Prioritize: contracts first (they're quick), then implementations.
+  while (!wallClockExceeded()) {
+    manifest = await readManifest();
+    if (openPrCount(manifest) >= MAX_OPEN_PRS) {
+      console.log("[orchestrator] PR governor limit reached — yielding.");
+      break;
+    }
+    if (budgetExhausted(manifest)) {
+      console.log("[orchestrator] premium-request cap reached — yielding.");
+      break;
+    }
+
+    // Reconcile between iterations to merge any greens and advance state.
+    await reconcile();
+    manifest = await readManifest();
+
+    // Try contract phase first.
+    const nextContract = nextPendingPage(manifest);
+    if (nextContract) {
+      console.log(`[orchestrator] contract phase: ${nextContract.id} (${nextContract.scenario}/${nextContract.risk})`);
+      await runContractPhase(nextContract);
+      continue;
+    }
+
+    // Then try implementation phase.
+    const nextImpl = nextNeedsImplPage(manifest);
+    if (nextImpl) {
+      console.log(`[orchestrator] impl phase: ${nextImpl.id} (${nextImpl.scenario}/${nextImpl.risk})`);
+      await runImplementationPhase(nextImpl);
+      continue;
+    }
+
+    // Nothing to do right now.
+    break;
+  }
+
+  await commitManifestToDefault();
+  console.log(`[orchestrator] run complete after ${((Date.now() - started) / 60000).toFixed(1)}min`);
+}
+
+async function ensureMigrationFolder(): Promise<void> {
+  const dir = path.resolve(".migration");
+  await fs.mkdir(dir, { recursive: true });
+}
+
+/**
+ * Commit the latest manifest + audit log to the default branch.
+ * This is the only place we push to default — always from a clean checkout.
+ */
+async function commitManifestToDefault(): Promise<void> {
+  if (process.env.MIGRATION_DRY_RUN === "1") return;
+  try {
+    await checkoutDefaultBranch();
+    // Re-read manifest from disk (it may have been updated by phases on branches).
+    const committed = commitAll("migration: update manifest + audit log");
+    if (committed) {
+      const defaultBranch = await getDefaultBranch();
+      pushBranch(defaultBranch);
+      console.log("[orchestrator] manifest committed to default branch.");
+    }
+  } catch (err) {
+    console.warn(`[orchestrator] failed to commit manifest to default: ${err}`);
+  }
 }
 
 main().catch(err => {

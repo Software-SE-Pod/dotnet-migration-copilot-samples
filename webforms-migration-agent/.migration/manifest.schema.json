@@ -28,10 +28,11 @@
           "aspxPath":  { "type": "string" },
           "scenario":  { "enum": ["form", "grid", "report", "wizard", "dashboard", "auth", "unknown"] },
           "risk":      { "enum": ["low", "medium", "high"] },
-          "status":    { "enum": ["pending", "contract-open", "impl-open", "review-open", "done", "failed", "blocked", "needs-human"] },
+          "status":    { "enum": ["pending", "contract-open", "needs-impl", "impl-open", "review-open", "done", "failed", "blocked", "needs-human"] },
           "contractPr":{ "type": "integer" },
           "implPr":    { "type": "integer" },
           "attempts":  { "type": "integer", "default": 0 },
+          "implAttempts": { "type": "integer", "default": 0 },
           "notes":     { "type": "string" },
           "blockedReason": { "type": "string" },
           "lastUpdated": { "type": "string", "format": "date-time" }

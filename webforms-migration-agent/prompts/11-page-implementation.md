@@ -1,37 +1,53 @@
-# Phase 11 — Page Implementation (Coding Agent)
+# Phase 11 — Page Implementation
 
-> This prompt is **not** executed by the orchestrator. It lives on the PR body
-> that the orchestrator opens after Phase 10, and it is read by the GitHub
-> Copilot Coding Agent when the PR is assigned to `@copilot`.
+You are implementing the real business logic and React UI for a migrated page.
+The contract (OpenAPI spec, generated types, stub controllers, stub React pages)
+has already been merged. Your job is to **replace every stub with working code**.
 
-## Your job
+## Target page
 
-Fill in the controller bodies and the React page for the page described by
-this PR's contract. **Do not** change `contracts/openapi.yaml` — it is fixed.
+- Page id: **{{PAGE_ID}}** (PascalCase: **{{PASCAL_PAGE_ID}}**)
+- Legacy source: **{{ASPX_PATH}}** (+ `.cs` code-behind)
+- Scenario: **{{SCENARIO}}**
 
-## Workflow
+## Mandatory steps — do ALL of these, in order
 
-1. Read `dotnet/Api/Controllers/{PascalPageId}Controller.ACCEPTANCE.md`.
-2. Read `{{ASPX_PATH}}` and `{{ASPX_PATH}}.cs`. Mentally map every event
-   handler → an operation on the controller.
-3. Replace every `NotImplementedException` with the real logic. Use EF Core
-   via the injected DbContext. Use the storage service for any file I/O.
-4. Build the real React UI against the generated client. Match the legacy
-   page's UX: field labels, validation behaviour, grid columns, pagination,
-   filters. Use `@tanstack/react-query` for server state and React Hook Form
-   + Zod (derived from the generated types) for forms.
-5. Write unit tests: at least one per controller method + one React component
-   test per major UX flow.
-6. Run `dotnet build`, `npm run build`, `dotnet test`, `npm test`. All green
-   before you request review.
-7. Add a smoke test entry to `tests/smoke/pages.yaml` so CI covers the new
-   route end-to-end.
+1. **Read the acceptance checklist** at
+   `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.ACCEPTANCE.md`.
+   This file lists the exact scenarios and tests you must implement.
+
+2. **Read the legacy source** at `{{ASPX_PATH}}` and `{{ASPX_PATH}}.cs`.
+   Map every event handler to its corresponding controller method. Understand
+   the data flow: what the page reads, writes, and renders.
+
+3. **Implement EVERY controller method** in
+   `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.cs`.
+   - Replace every `throw new NotImplementedException()` with real EF Core logic.
+   - Use the injected `AppDbContext` for database operations.
+   - Use the storage service for any file I/O.
+   - Handle validation, error cases, and edge conditions from the legacy code.
+   - Do NOT leave any `NotImplementedException` — every method must have real logic.
+
+4. **Build the real React UI** in `web/src/pages/{{PASCAL_PAGE_ID}}/index.tsx`.
+   - Replace the `<pre>{JSON.stringify(data)}</pre>` placeholder with a proper UI.
+   - Match the legacy page's UX: field labels, validation, grid columns, pagination,
+     filters, buttons, and navigation.
+   - Use `@tanstack/react-query` for server state management.
+   - Use React Hook Form + Zod for form validation (derive schemas from generated types).
+   - Use the generated API client from `web/src/api/generated/`.
+
+5. **Write unit tests**:
+   - At least one test per controller method in `dotnet/Api/Controllers/` test project.
+   - At least one React component test per major UX flow in
+     `web/src/pages/{{PASCAL_PAGE_ID}}/__tests__/index.test.tsx`.
+
+6. **Verify builds pass**: Run `dotnet build` and `npm run build`. Fix any errors.
 
 ## Rules
 
-- **NEVER** regenerate NSwag outputs in this PR. They are fixed.
-- **NEVER** add new endpoints. If you need one, open an issue instead.
-- **ALWAYS** keep the legacy `.aspx` in place — a later cutover phase will
-  delete it once the smoke test has passed in production.
-- If the page depends on an unmigrated page, stub the link to it using YARP
-  passthrough (`/webforms/<old-path>`). Do not block on the dependency.
+- **NEVER** regenerate NSwag outputs. The generated types are fixed.
+- **NEVER** add new API endpoints. If you need one, note it in a code comment.
+- **NEVER** modify `contracts/openapi.yaml`.
+- **ALWAYS** keep the legacy `.aspx` files in place.
+- If a dependency on another page exists, stub the link using YARP passthrough.
+- Focus on correctness and completeness over polish.

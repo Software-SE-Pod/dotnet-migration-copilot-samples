@@ -11,12 +11,12 @@ export const PHASE_ORDER: PhaseKey[] =
 
 export type PhaseStatus = "pending" | "in-progress" | "done" | "failed";
 export type PageStatus  =
-  | "pending" | "contract-open" | "impl-open" | "review-open"
+  | "pending" | "contract-open" | "needs-impl" | "impl-open" | "review-open"
   | "done" | "failed" | "blocked" | "needs-human";
 export type Scenario    = "form" | "grid" | "report" | "wizard" | "dashboard" | "auth" | "unknown";
 
-export const MAX_PHASE_ATTEMPTS = 5;
-export const MAX_PAGE_ATTEMPTS  = 5;
+export const MAX_PHASE_ATTEMPTS = 3;
+export const MAX_PAGE_ATTEMPTS  = 3;
 
 export interface PhaseState {
   status: PhaseStatus;
@@ -35,6 +35,7 @@ export interface PageEntry {
   contractPr?: number;
   implPr?: number;
   attempts?: number;
+  implAttempts?: number;
   notes?: string;
   blockedReason?: string;
   lastUpdated?: string;
@@ -145,11 +146,21 @@ export function nextPendingPage(m: Manifest): PageEntry | null {
   return candidates[0] ?? null;
 }
 
+/** Find the next page whose contract has merged but impl is still stub code. */
+export function nextNeedsImplPage(m: Manifest): PageEntry | null {
+  const byRisk = (p: PageEntry) =>
+    p.risk === "low" ? 0 : p.risk === "medium" ? 1 : p.risk === "high" ? 2 : 3;
+  const candidates = m.pages
+    .filter(p => p.status === "needs-impl" && (p.implAttempts ?? 0) < MAX_PAGE_ATTEMPTS)
+    .sort((a, b) => byRisk(a) - byRisk(b));
+  return candidates[0] ?? null;
+}
+
 export function openPrCount(m: Manifest): number {
   const phasePrs = Object.values(m.bootstrap).filter(p =>
     p.status === "in-progress" && typeof p.pr === "number").length;
   const pagePrs = m.pages.filter(p =>
-    (p.status === "contract-open" || p.status === "impl-open")).length;
+    (p.status === "contract-open" || p.status === "impl-open" || p.status === "review-open")).length;
   return phasePrs + pagePrs;
 }
 

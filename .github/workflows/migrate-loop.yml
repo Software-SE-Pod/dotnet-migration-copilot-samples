@@ -75,6 +75,12 @@ jobs:
           git config user.name  "webforms-migration-bot"
           git config user.email "bot@users.noreply.github.com"
 
+      - name: Reset done pages to needs-impl (one-time migration)
+        working-directory: webforms-migration-agent
+        env:
+          MIGRATION_TARGET_REPO: ${{ github.workspace }}
+        run: npx tsx src/resetToNeedsImpl.ts
+
       - name: Run orchestrator
         working-directory: webforms-migration-agent
         env:
