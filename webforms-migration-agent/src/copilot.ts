@@ -113,15 +113,58 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
       ...(mcpServers ? { mcpServers } : {}),
     });
 
-    const result = await session.sendAndWait({ prompt: fullPrompt }, timeoutMs);
+    // Multi-turn loop: send the initial prompt, then follow up if the model
+    // indicates it stopped before finishing (e.g. "proceeding to…", "next step").
+    const MAX_TURNS = 4;
+    let turnSummary = "";
+    let totalPremium = 0;
+    const elapsed = () => Date.now() - started;
+    const remainingMs = () => Math.max(timeoutMs - elapsed(), 60_000); // at least 1min
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anyRes = result as any;
-    const summary = typeof anyRes === "string" ? anyRes :
-                    anyRes?.data?.content ?? anyRes?.summary ?? anyRes?.text ??
-                    `(session ${input.id} completed)`;
-    const premiumRequests = typeof anyRes?.premiumRequests === "number"
-      ? anyRes.premiumRequests : 1;
+    for (let turn = 0; turn < MAX_TURNS; turn++) {
+      const prompt = turn === 0
+        ? fullPrompt
+        : [
+            "You are NOT done yet. The previous turn left work incomplete.",
+            "Continue implementing immediately — do NOT summarize or plan.",
+            "Write the remaining files, run the build, fix any errors.",
+            "Do NOT stop until every file is fully implemented.",
+          ].join("\n");
+
+      console.log(`[copilot] session ${input.id} — turn ${turn + 1}/${MAX_TURNS}`);
+      const result = await session.sendAndWait({ prompt }, remainingMs());
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyRes = result as any;
+      turnSummary = typeof anyRes === "string" ? anyRes :
+                      anyRes?.data?.content ?? anyRes?.summary ?? anyRes?.text ??
+                      `(session ${input.id} turn ${turn + 1} completed)`;
+      totalPremium += typeof anyRes?.premiumRequests === "number"
+        ? anyRes.premiumRequests : 1;
+
+      console.log(`[copilot] turn ${turn + 1} summary: ${turnSummary.slice(0, 200)}`);
+
+      // If the summary doesn't hint at incomplete work, we're done.
+      const incompletePhrases = [
+        "next step", "proceeding to", "will implement", "as a follow-up",
+        "remaining work", "todo", "to-do", "not yet", "still need",
+      ];
+      const lower = turnSummary.toLowerCase();
+      const looksIncomplete = incompletePhrases.some(p => lower.includes(p));
+
+      if (!looksIncomplete) {
+        console.log(`[copilot] session ${input.id} looks complete after turn ${turn + 1}`);
+        break;
+      }
+
+      if (elapsed() > timeoutMs - 60_000) {
+        console.log(`[copilot] session ${input.id} — budget exhausted after turn ${turn + 1}`);
+        break;
+      }
+    }
+
+    const summary = turnSummary;
+    const premiumRequests = totalPremium;
 
     await session.destroy();
     await client.stop();
