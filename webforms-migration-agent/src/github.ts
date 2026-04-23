@@ -1,5 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import { execSync } from "node:child_process";
+import { existsSync, rmSync } from "node:fs";
+import path from "node:path";
 
 /**
  * GitHub + Git helpers. Keeps orchestrator code free of shell plumbing.
@@ -76,12 +78,10 @@ export function commitAll(message: string): boolean {
   // the 'workflows' token scope which GitHub App / PAT tokens typically lack.
   // The SDK frequently generates build.yml / ci.yml files we must strip.
   try {
-    const fs = require("fs");
-    const path = require("path");
     const wfDir = path.join(process.cwd(), ".github", "workflows");
-    if (fs.existsSync(wfDir)) {
+    if (existsSync(wfDir)) {
       console.log(`[github] removing .github/workflows/ to avoid push rejection`);
-      fs.rmSync(wfDir, { recursive: true, force: true });
+      rmSync(wfDir, { recursive: true, force: true });
     }
   } catch (e) { console.warn(`[github] failed to remove workflows dir: ${e}`); }
   sh(`git add -A`);
@@ -124,11 +124,9 @@ export function pushBranch(name: string): void {
   } catch { /* no workflow changes or git error — proceed normally */ }
   // Also nuke any untracked workflow files that might cause issues
   try {
-    const fs = require("fs");
-    const path = require("path");
     const wfDir = path.join(process.cwd(), ".github", "workflows");
-    if (fs.existsSync(wfDir)) {
-      fs.rmSync(wfDir, { recursive: true, force: true });
+    if (existsSync(wfDir)) {
+      rmSync(wfDir, { recursive: true, force: true });
       try {
         sh(`git add -A`);
         sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" commit -m "chore: remove lingering workflow files" --allow-empty`);

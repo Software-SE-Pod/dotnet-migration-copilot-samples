@@ -1,8 +1,7 @@
 # Phase 11 — Page Implementation
 
-You are implementing the real business logic and React UI for a migrated page.
-The contract (OpenAPI spec, generated types, stub controllers, stub React pages)
-has already been merged. Your job is to **replace every stub with working code**.
+You MUST implement real business logic NOW. Do NOT plan, summarize, or describe.
+Open files, edit them, save them. Every instruction below is an ACTION to execute.
 
 ## Target page
 
@@ -10,44 +9,46 @@ has already been merged. Your job is to **replace every stub with working code**
 - Legacy source: **{{ASPX_PATH}}** (+ `.cs` code-behind)
 - Scenario: **{{SCENARIO}}**
 
-## Mandatory steps — do ALL of these, in order
+## Step 1 — Read these files NOW
 
-1. **Read the acceptance checklist** at
-   `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.ACCEPTANCE.md`.
-   This file lists the exact scenarios and tests you must implement.
+Open and read ALL of these files:
+- `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.ACCEPTANCE.md`
+- `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.cs`
+- `{{ASPX_PATH}}`
+- `{{ASPX_PATH}}.cs`
+- `web/src/pages/{{PASCAL_PAGE_ID}}/index.tsx`
 
-2. **Read the legacy source** at `{{ASPX_PATH}}` and `{{ASPX_PATH}}.cs`.
-   Map every event handler to its corresponding controller method. Understand
-   the data flow: what the page reads, writes, and renders.
+## Step 2 — Implement the controller
 
-3. **Implement EVERY controller method** in
-   `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.cs`.
-   - Replace every `throw new NotImplementedException()` with real EF Core logic.
-   - Use the injected `AppDbContext` for database operations.
-   - Use the storage service for any file I/O.
-   - Handle validation, error cases, and edge conditions from the legacy code.
-   - Do NOT leave any `NotImplementedException` — every method must have real logic.
+Open `dotnet/Api/Controllers/{{PASCAL_PAGE_ID}}Controller.cs` and REPLACE every
+`throw new NotImplementedException();` with real C# code that:
+- Uses EF Core via the injected `AppDbContext` for database operations
+- Implements the same logic as the legacy `.aspx.cs` code-behind
+- Maps legacy event handlers to REST controller methods
+- Handles validation and error cases
 
-4. **Build the real React UI** in `web/src/pages/{{PASCAL_PAGE_ID}}/index.tsx`.
-   - Replace the `<pre>{JSON.stringify(data)}</pre>` placeholder with a proper UI.
-   - Match the legacy page's UX: field labels, validation, grid columns, pagination,
-     filters, buttons, and navigation.
-   - Use `@tanstack/react-query` for server state management.
-   - Use React Hook Form + Zod for form validation (derive schemas from generated types).
-   - Use the generated API client from `web/src/api/generated/`.
+Write the complete file. Do NOT leave any `NotImplementedException`.
 
-5. **Write unit tests**:
-   - At least one test per controller method in `dotnet/Api/Controllers/` test project.
-   - At least one React component test per major UX flow in
-     `web/src/pages/{{PASCAL_PAGE_ID}}/__tests__/index.test.tsx`.
+## Step 3 — Build the React page
 
-6. **Verify builds pass**: Run `dotnet build` and `npm run build`. Fix any errors.
+Open `web/src/pages/{{PASCAL_PAGE_ID}}/index.tsx` and REPLACE the entire
+`<pre>{JSON.stringify(data, null, 2)}</pre>` placeholder with a real React UI:
+- Use the generated API client from `../api/generated/`
+- Create proper form fields, data grids, buttons matching the legacy page
+- Use `@tanstack/react-query` for data fetching
+- Use React Hook Form for form handling
+- Include proper validation, loading states, and error handling
+
+Write the complete file. Do NOT leave any `JSON.stringify(data` placeholder.
+
+## Step 4 — Write tests
+
+Create/update `web/src/pages/{{PASCAL_PAGE_ID}}/__tests__/index.test.tsx` with at
+least one meaningful test for the main UI flow.
 
 ## Rules
 
-- **NEVER** regenerate NSwag outputs. The generated types are fixed.
-- **NEVER** add new API endpoints. If you need one, note it in a code comment.
-- **NEVER** modify `contracts/openapi.yaml`.
-- **ALWAYS** keep the legacy `.aspx` files in place.
-- If a dependency on another page exists, stub the link using YARP passthrough.
-- Focus on correctness and completeness over polish.
+- NEVER modify `contracts/openapi.yaml` or regenerate NSwag outputs
+- NEVER add new API endpoints
+- ALWAYS keep the legacy `.aspx` files in place
+- Focus on correctness — make the code compile and work

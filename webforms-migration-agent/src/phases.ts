@@ -356,10 +356,17 @@ export async function runImplementationPhase(page: PageEntry): Promise<void> {
   const stillHasStubs = await hasNotImplemented(controllerPath);
   const stillHasPlaceholder = await hasJsonPlaceholder(reactPagePath);
 
-  if (stillHasStubs && stillHasPlaceholder) {
-    console.warn(`[phases] impl session for ${page.id} left stubs in place — failing`);
+  console.log(`[phases] impl validation for ${page.id}: controller stubs=${stillHasStubs}, react placeholder=${stillHasPlaceholder}`);
+  console.log(`[phases] session summary: ${result.summary.slice(0, 500)}`);
+
+  if (stillHasStubs || stillHasPlaceholder) {
+    const what = [
+      stillHasStubs && "controller still has NotImplementedException",
+      stillHasPlaceholder && "React page still has JSON.stringify placeholder",
+    ].filter(Boolean).join("; ");
+    console.warn(`[phases] impl session for ${page.id} incomplete: ${what}`);
     p.status = "needs-impl";
-    p.notes = `impl session produced no real implementation (stubs remain)`;
+    p.notes = `impl incomplete: ${what}`;
     stamp(p);
     await writeManifest(manifest);
     await checkoutDefaultBranch();
