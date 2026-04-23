@@ -359,18 +359,26 @@ export async function runImplementationPhase(page: PageEntry): Promise<void> {
   console.log(`[phases] impl validation for ${page.id}: controller stubs=${stillHasStubs}, react placeholder=${stillHasPlaceholder}`);
   console.log(`[phases] session summary: ${result.summary.slice(0, 500)}`);
 
-  if (stillHasStubs || stillHasPlaceholder) {
-    const what = [
-      stillHasStubs && "controller still has NotImplementedException",
-      stillHasPlaceholder && "React page still has JSON.stringify placeholder",
-    ].filter(Boolean).join("; ");
-    console.warn(`[phases] impl session for ${page.id} incomplete: ${what}`);
+  // Hard gate: only block if NO progress was made (both stubs remain).
+  // If at least one component was implemented, open the PR — the review cycle
+  // or a follow-up iteration will handle the remainder.
+  if (stillHasStubs && stillHasPlaceholder) {
+    console.warn(`[phases] impl session for ${page.id} made zero progress — both stubs remain`);
     p.status = "needs-impl";
-    p.notes = `impl incomplete: ${what}`;
+    p.notes = `impl session produced no real implementation (all stubs remain)`;
     stamp(p);
     await writeManifest(manifest);
     await checkoutDefaultBranch();
     return;
+  }
+
+  // Log partial progress as info (not a blocker).
+  if (stillHasStubs || stillHasPlaceholder) {
+    const partial = [
+      stillHasStubs && "controller still has NotImplementedException",
+      stillHasPlaceholder && "React page still has JSON.stringify placeholder",
+    ].filter(Boolean).join("; ");
+    console.log(`[phases] impl session for ${page.id} partial: ${partial} — opening PR anyway`);
   }
 
   // Gate: there must be actual changes.
@@ -388,9 +396,14 @@ export async function runImplementationPhase(page: PageEntry): Promise<void> {
 
   pushBranch(branch);
 
+  const partialNotes = [
+    stillHasStubs && "⚠️ Controller still has `NotImplementedException` stubs",
+    stillHasPlaceholder && "⚠️ React page still has `JSON.stringify` placeholder",
+  ].filter(Boolean);
+
   const pr = await openPr({
     title: `migration(${page.id}): implementation — controllers + React UI`,
-    body: implPrBody(page, result.summary),
+    body: implPrBody(page, result.summary, partialNotes as string[]),
     head: branch,
     labels: ["migration", "phase:impl", `page:${page.id}`, "auto"],
   });
@@ -402,12 +415,21 @@ export async function runImplementationPhase(page: PageEntry): Promise<void> {
   await checkoutDefaultBranch();
 }
 
-function implPrBody(page: PageEntry, summary: string): string {
+function implPrBody(page: PageEntry, summary: string, partialNotes: string[] = []): string {
   const pascalId = page.id.replace(/(^|[-_])(\w)/g, (_, __, c: string) => c.toUpperCase());
-  return [
+  const lines = [
     `## Implementation PR: **${page.id}** (\`${page.aspxPath}\`)`,
     `Scenario: **${page.scenario}** | Risk: **${page.risk ?? "unknown"}**`,
     "",
+  ];
+
+  if (partialNotes.length > 0) {
+    lines.push("### ⚠️ Partial implementation", "");
+    lines.push(...partialNotes.map(n => `- ${n}`));
+    lines.push("", "The review cycle may request changes to complete the remaining work.", "");
+  }
+
+  lines.push(
     "This PR fills in the actual business logic and React UI for this page:",
     `- \`dotnet/Api/Controllers/${pascalId}Controller.cs\` — real EF Core logic replacing NotImplementedException stubs`,
     `- \`web/src/pages/${pascalId}/index.tsx\` — full React UI with forms, grids, and validation`,
@@ -426,7 +448,8 @@ function implPrBody(page: PageEntry, summary: string): string {
     "- [ ] `dotnet build` green",
     "- [ ] `npm run build` green",
     "- [ ] Unit tests pass",
-  ].join("\n");
+  );
+  return lines.join("\n");
 }
 
 /** ============================================================= */
