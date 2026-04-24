@@ -4,7 +4,7 @@ import { runSession } from "./copilot.js";
 import {
   commitAll, createBranch, openPr, pushBranch,
   listOpenPrs, prIsGreen, mergePr, getPrState,
-  getPrDiff, postPrReview,
+  getPrDiff, postPrReview, rebasePrBranch, prHasConflicts,
   checkoutDefaultBranch, type PrInfo,
 } from "./github.js";
 import {
@@ -594,8 +594,13 @@ export async function reconcile(): Promise<void> {
       } else if (await prIsGreen(page.implPr)) {
         // Run SDK review (advisory — posted as comment since we own the PR).
         const review = await reviewPr(page.implPr, `review:page:${page.id}:impl`);
+        // Rebase if there are conflicts (main may have advanced since PR was created).
+        if (await prHasConflicts(page.implPr)) {
+          const branch = `migration/page/${page.id}/impl`;
+          console.log(`[phases] PR #${page.implPr} has conflicts — rebasing ${branch}`);
+          await rebasePrBranch(branch);
+        }
         // Merge regardless of review verdict — impl PRs are our own code.
-        // The review is posted as a comment for traceability.
         const merged = await mergePr(page.implPr);
         if (merged) {
           page.status = "done";

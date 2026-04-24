@@ -164,7 +164,11 @@ export async function openPr(params: {
     base,
   });
   if (params.labels?.length) {
-    await gh.issues.addLabels({ owner, repo, issue_number: pr.data.number, labels: params.labels });
+    try {
+      await gh.issues.addLabels({ owner, repo, issue_number: pr.data.number, labels: params.labels });
+    } catch (err) {
+      console.warn(`[github] failed to add labels (non-fatal): ${err}`);
+    }
   }
   if (params.assignCopilot) {
     await assignCopilot(pr.data.node_id).catch(err => {
