@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "types": ["jest", "node", "react", "@testing-library/jest-dom"]
+  },
+  "include": ["web/src/**/*", "web/types/**/*"]
+}
