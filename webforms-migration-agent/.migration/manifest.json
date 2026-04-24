@@ -51,10 +51,11 @@
       "scenario": "dashboard",
       "risk": "medium",
       "attempts": 1,
-      "notes": "PR #41 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:59:58.581Z",
-      "contractPr": 41
+      "contractPr": 41,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-admin-login",
@@ -72,10 +73,12 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #34 merged",
-      "status": "done",
+      "notes": "impl PR #45 open \u2014 waiting for review+merge",
+      "status": "impl-open",
       "lastUpdated": "2026-04-22T15:22:40.342Z",
-      "contractPr": 34
+      "contractPr": 34,
+      "implPr": 45,
+      "implAttempts": 1
     },
     {
       "id": "contosouniversity-webforms-pages-courses-courselist",
@@ -83,10 +86,11 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #35 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:26:50.538Z",
-      "contractPr": 35
+      "contractPr": 35,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-default",
@@ -94,10 +98,11 @@
       "scenario": "dashboard",
       "risk": "medium",
       "attempts": 1,
-      "notes": "PR #42 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T16:08:54.270Z",
-      "contractPr": 42
+      "contractPr": 42,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentedit",
@@ -105,10 +110,11 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #36 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:32:26.013Z",
-      "contractPr": 36
+      "contractPr": 36,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentlist",
@@ -116,10 +122,11 @@
       "scenario": "grid",
       "risk": "medium",
       "attempts": 1,
-      "notes": "PR #43 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T16:13:52.504Z",
-      "contractPr": 43
+      "contractPr": 43,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-instructors-instructoredit",
@@ -127,10 +134,11 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #37 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:37:47.835Z",
-      "contractPr": 37
+      "contractPr": 37,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-instructors-instructorlist",
@@ -138,10 +146,11 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #38 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:42:29.187Z",
-      "contractPr": 38
+      "contractPr": 38,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-reports-enrollmentstats",
@@ -149,10 +158,11 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #39 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:47:02.738Z",
-      "contractPr": 39
+      "contractPr": 39,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentedit",
@@ -160,10 +170,11 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "PR #40 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T15:56:15.817Z",
-      "contractPr": 40
+      "contractPr": 40,
+      "implAttempts": 0
     },
     {
       "id": "contosouniversity-webforms-pages-students-studentlist",
@@ -171,10 +182,11 @@
       "scenario": "grid",
       "risk": "medium",
       "attempts": 1,
-      "notes": "PR #44 merged",
-      "status": "done",
+      "notes": "ready for implementation",
+      "status": "needs-impl",
       "lastUpdated": "2026-04-22T16:17:51.545Z",
-      "contractPr": 44
+      "contractPr": 44,
+      "implAttempts": 0
     }
   ],
   "budget": {
