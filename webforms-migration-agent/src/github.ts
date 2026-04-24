@@ -296,6 +296,8 @@ export async function rebasePrBranch(headBranch: string): Promise<boolean> {
   if (dry()) { console.log(`[dry-run] rebase ${headBranch} onto default`); return true; }
   const base = await getDefaultBranch();
   try {
+    // Stash any dirty working tree (audit.log, manifest.json from SDK sessions)
+    try { sh(`git stash --include-untracked`); } catch { /* nothing to stash */ }
     sh(`git fetch origin ${base} ${headBranch}`);
     sh(`git checkout ${headBranch}`);
     sh(`git reset --hard origin/${headBranch}`);
@@ -303,9 +305,10 @@ export async function rebasePrBranch(headBranch: string): Promise<boolean> {
     sh(`git -c user.name="webforms-migration-bot" -c user.email="bot@users.noreply.github.com" rebase origin/${base}`);
     sh(`git push origin ${headBranch} --force-with-lease`);
     console.log(`[github] rebased ${headBranch} onto ${base} and force-pushed`);
-    // Return to default branch
+    // Return to default branch and restore stash
     sh(`git checkout ${base}`);
     sh(`git reset --hard origin/${base}`);
+    try { sh(`git stash pop`); } catch { /* no stash or conflicts — ignore */ }
     return true;
   } catch (err) {
     console.warn(`[github] rebase failed for ${headBranch}: ${err}`);
@@ -314,6 +317,7 @@ export async function rebasePrBranch(headBranch: string): Promise<boolean> {
     try {
       sh(`git checkout ${base}`);
       sh(`git reset --hard origin/${base}`);
+      try { sh(`git stash pop`); } catch { /* ignore */ }
     } catch { /* ignore */ }
     return false;
   }
