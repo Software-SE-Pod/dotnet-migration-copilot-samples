@@ -73,7 +73,7 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "impl PR #45 open \u2014 waiting for review+merge",
+      "notes": "impl PR #45 open — waiting for review+merge",
       "status": "impl-open",
       "lastUpdated": "2026-04-22T15:22:40.342Z",
       "contractPr": 34,
@@ -87,10 +87,11 @@
       "risk": "low",
       "attempts": 1,
       "notes": "ready for implementation",
-      "status": "needs-impl",
-      "lastUpdated": "2026-04-22T15:26:50.538Z",
+      "status": "impl-open",
+      "lastUpdated": "2026-04-24T17:01:22.385Z",
       "contractPr": 35,
-      "implAttempts": 0
+      "implAttempts": 1,
+      "implPr": 46
     },
     {
       "id": "contosouniversity-webforms-pages-default",
@@ -111,10 +112,11 @@
       "risk": "low",
       "attempts": 1,
       "notes": "ready for implementation",
-      "status": "needs-impl",
-      "lastUpdated": "2026-04-22T15:32:26.013Z",
+      "status": "impl-open",
+      "lastUpdated": "2026-04-24T17:06:55.113Z",
       "contractPr": 36,
-      "implAttempts": 0
+      "implAttempts": 1,
+      "implPr": 47
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentlist",
@@ -190,7 +192,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 7,
+    "premiumRequestsUsed": 10,
     "premiumRequestsCap": 2000
   }
 }
