@@ -113,9 +113,10 @@
       "attempts": 1,
       "notes": "ready for implementation",
       "status": "impl-open",
-      "lastUpdated": "2026-04-24T17:36:35.709Z",
+      "lastUpdated": "2026-04-24T17:52:07.839Z",
       "contractPr": 36,
-      "implAttempts": 1
+      "implAttempts": 1,
+      "implPr": 47
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentlist",
@@ -191,7 +192,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 9,
+    "premiumRequestsUsed": 10,
     "premiumRequestsCap": 2000
   }
 }
