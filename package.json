@@ -1,6 +1,25 @@
 {
   "dependencies": {
+    "@tanstack/react-query": "^5.100.1",
     "@vitejs/plugin-react": "^2.2.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-hook-form": "^7.73.1",
     "vite": "^4.4.9"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-typescript": "^7.28.6",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "babel-jest": "^30.3.0",
+    "jest": "^30.3.0",
+    "jsdom": "^29.0.2",
+    "ts-jest": "^29.4.9",
+    "vitest": "^4.1.5"
   }
 }
