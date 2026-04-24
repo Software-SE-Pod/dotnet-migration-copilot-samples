@@ -412,7 +412,12 @@ export async function runImplementationPhase(page: PageEntry): Promise<void> {
   await writeManifest(manifest);
   commitAll(`migration(${page.id}): update manifest state`);
   pushBranch(branch);
+
+  // Persist status to main so future runs see impl-open (not needs-impl).
+  // Without this, checkoutDefaultBranch() overwrites the manifest with main's
+  // stale copy and the update is lost.
   await checkoutDefaultBranch();
+  await writeManifest(manifest);
 }
 
 function implPrBody(page: PageEntry, summary: string, partialNotes: string[] = []): string {

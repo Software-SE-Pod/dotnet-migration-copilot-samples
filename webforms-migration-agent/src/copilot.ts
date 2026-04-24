@@ -148,6 +148,8 @@ export async function runSession(input: SessionInput): Promise<SessionResult> {
       const incompletePhrases = [
         "next step", "proceeding to", "will implement", "as a follow-up",
         "remaining work", "todo", "to-do", "not yet", "still need",
+        "continuing until", "continuing to", "still extract", "still reading",
+        "unblock", "as the next", "not complete", "not finished",
       ];
       const lower = turnSummary.toLowerCase();
       const looksIncomplete = incompletePhrases.some(p => lower.includes(p));
