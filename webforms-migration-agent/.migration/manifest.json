@@ -75,9 +75,10 @@
       "attempts": 1,
       "notes": "reset from done → needs-impl (contract was scaffold-only)",
       "status": "impl-open",
-      "lastUpdated": "2026-04-24T13:04:41.428Z",
+      "lastUpdated": "2026-04-24T13:11:09.563Z",
       "contractPr": 34,
-      "implAttempts": 1
+      "implAttempts": 1,
+      "implPr": 45
     },
     {
       "id": "contosouniversity-webforms-pages-courses-courselist",
@@ -189,7 +190,7 @@
     }
   ],
   "budget": {
-    "premiumRequestsUsed": 7,
+    "premiumRequestsUsed": 8,
     "premiumRequestsCap": 2000
   }
 }
