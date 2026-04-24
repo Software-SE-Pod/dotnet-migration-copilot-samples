@@ -371,8 +371,20 @@ export async function postPrReview(
   }
   const gh = octokit();
   const { owner, repo } = repoSlug();
-  await gh.pulls.createReview({ owner, repo, pull_number: num, body, event });
-  console.log(`[github] posted ${event} review on PR #${num}`);
+  try {
+    await gh.pulls.createReview({ owner, repo, pull_number: num, body, event });
+    console.log(`[github] posted ${event} review on PR #${num}`);
+  } catch (err: unknown) {
+    // GitHub returns 422 when trying to REQUEST_CHANGES on your own PR.
+    // Fall back to a regular comment so the orchestrator doesn't crash.
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("own pull request") || msg.includes("422")) {
+      console.warn(`[github] cannot ${event} own PR #${num} — posting as COMMENT instead`);
+      await gh.pulls.createReview({ owner, repo, pull_number: num, body, event: "COMMENT" });
+    } else {
+      throw err;
+    }
+  }
 }
 
 /** Post a regular issue comment on a PR (not a review). */
