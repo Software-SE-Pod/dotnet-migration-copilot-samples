@@ -205,8 +205,13 @@ async function ensureMigrationFolder(): Promise<void> {
 async function commitManifestToDefault(): Promise<void> {
   if (process.env.MIGRATION_DRY_RUN === "1") return;
   try {
+    // Read the manifest BEFORE resetting to origin/main — the in-memory copy
+    // has the latest state from all phases run this iteration.
+    // checkoutDefaultBranch() does `git reset --hard origin/main` which destroys
+    // any uncommitted manifest changes on disk, so we must re-write after.
+    const manifest = await readManifest();
     await checkoutDefaultBranch();
-    // Re-read manifest from disk (it may have been updated by phases on branches).
+    await writeManifest(manifest);
     const committed = commitAll("migration: update manifest + audit log");
     if (committed) {
       const defaultBranch = await getDefaultBranch();

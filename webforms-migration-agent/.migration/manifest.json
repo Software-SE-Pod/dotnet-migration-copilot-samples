@@ -86,11 +86,12 @@
       "scenario": "grid",
       "risk": "low",
       "attempts": 1,
-      "notes": "ready for implementation",
-      "status": "needs-impl",
-      "lastUpdated": "2026-04-22T15:26:50.538Z",
+      "notes": "impl PR #46 open — waiting for review+merge",
+      "status": "impl-open",
+      "lastUpdated": "2026-04-24T19:46:00.000Z",
       "contractPr": 35,
-      "implAttempts": 0
+      "implPr": 46,
+      "implAttempts": 1
     },
     {
       "id": "contosouniversity-webforms-pages-default",
@@ -110,11 +111,12 @@
       "scenario": "form",
       "risk": "low",
       "attempts": 1,
-      "notes": "ready for implementation",
-      "status": "needs-impl",
-      "lastUpdated": "2026-04-22T15:32:26.013Z",
+      "notes": "impl PR #47 open — waiting for review+merge",
+      "status": "impl-open",
+      "lastUpdated": "2026-04-24T19:46:00.000Z",
       "contractPr": 36,
-      "implAttempts": 0
+      "implPr": 47,
+      "implAttempts": 1
     },
     {
       "id": "contosouniversity-webforms-pages-departments-departmentlist",
