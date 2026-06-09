@@ -1,9 +1,6 @@
 name: Autonomous Migration Loop
 
 on:
-  schedule:
-    # Every 4 hours — 6 times a day. The job budget is 4.5h, leaving slack.
-    - cron: "0 */4 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
