@@ -14,6 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ApiContracts\ApiContracts.csproj" />
+    <ProjectReference Include="..\ContosoUniversity.Data\ContosoUniversity.Data.csproj" />
     <ProjectReference Include="..\Storage\Storage.csproj" />
   </ItemGroup>
 

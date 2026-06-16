@@ -1,3 +1,4 @@
+using ContosoUniversity.Data;
 using Microsoft.AspNetCore.Mvc;
 using ApiContracts.Generated;
 
@@ -7,8 +8,25 @@ namespace Api.Controllers
     [Route("api/contosouniversity-webforms-pages-default")]
     public class ContosouniversityWebformsPagesDefaultController : Generated.ContosouniversityWebformsPagesDefaultControllerBase
     {
-        // TODO(coding-agent): port GetContosouniversityWebformsPagesDefault from ContosoUniversity.WebForms/Pages/Default.aspx.cs
-        public override Task<ActionResult<ContosouniversityWebformsPagesDefaultViewModel>> GetContosouniversityWebformsPagesDefault(CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+        private readonly SchoolContext _db;
+
+        public ContosouniversityWebformsPagesDefaultController(SchoolContext db)
+        {
+            _db = db;
+        }
+
+        public override async Task<ActionResult<ContosouniversityWebformsPagesDefaultViewModel>> GetContosouniversityWebformsPagesDefault(CancellationToken cancellationToken)
+        {
+            var studentCount = await System.Threading.Tasks.Task.FromResult(_db.Students.Count());
+            var courseCount = _db.Courses.Count();
+            var deptCount = _db.Departments.Count();
+
+            return Ok(new ContosouniversityWebformsPagesDefaultViewModel
+            {
+                StudentCount = studentCount,
+                CourseCount = courseCount,
+                DepartmentCount = deptCount
+            });
+        }
     }
 }
