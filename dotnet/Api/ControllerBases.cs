@@ -29,6 +29,7 @@ namespace Generated
         public abstract Task<ContosouniversityWebformsPagesStudentsStudenteditViewModel> GetContosouniversityWebformsPagesStudentsStudentedit([FromQuery] int? id, CancellationToken cancellationToken);
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public abstract Task<ContosouniversityWebformsPagesStudentsStudenteditSubmitResult> SubmitContosouniversityWebformsPagesStudentsStudentedit([FromBody] ContosouniversityWebformsPagesStudentsStudenteditSubmitRequest body, CancellationToken cancellationToken);
     }
 
@@ -49,6 +50,7 @@ namespace Generated
         public abstract ActionResult<ContosouniversityWebformsPagesCoursesCourseeditViewModel> GetContosouniversityWebformsPagesCoursesCourseedit([FromQuery] int? id);
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public abstract ActionResult<ContosouniversityWebformsPagesCoursesCourseeditSubmitResult> SubmitContosouniversityWebformsPagesCoursesCourseedit([FromBody] ContosouniversityWebformsPagesCoursesCourseeditSubmitRequest request);
     }
 
@@ -72,6 +74,7 @@ namespace Generated
         public abstract IActionResult GetContosouniversityWebformsPagesDepartmentsDepartmentedit([FromQuery] int? id);
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public abstract IActionResult SubmitContosouniversityWebformsPagesDepartmentsDepartmentedit([FromBody] ContosouniversityWebformsPagesDepartmentsDepartmenteditSubmitRequest request);
     }
 
@@ -92,6 +95,7 @@ namespace Generated
         public abstract ActionResult<ContosouniversityWebformsPagesInstructorsInstructoreditViewModel> GetContosouniversityWebformsPagesInstructorsInstructoredit([FromQuery] int? id);
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public abstract ActionResult<ContosouniversityWebformsPagesInstructorsInstructoreditSubmitResult> SubmitContosouniversityWebformsPagesInstructorsInstructoredit([FromBody] ContosouniversityWebformsPagesInstructorsInstructoreditSubmitRequest request);
     }
 
@@ -103,6 +107,7 @@ namespace Generated
         public abstract ActionResult<ContosouniversityWebformsPagesReportsEnrollmentstatsViewModel> GetContosouniversityWebformsPagesReportsEnrollmentstats([FromQuery] int? departmentId);
 
         [HttpPost("export")]
+        [IgnoreAntiforgeryToken]
         public abstract ActionResult<ContosouniversityWebformsPagesReportsEnrollmentstatsExportCsvResult> ExportContosouniversityWebformsPagesReportsEnrollmentstats([FromBody] Body request);
     }
 
